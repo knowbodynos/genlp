@@ -88,7 +88,7 @@ class BedTool(bt):
         :param str expr: path to normalized feature count table (*default: None*)
         :param str sample_regex: regex to filter by sample name (*default: None*)
         :return: mean expression level for gene corresponding to interval
-        :rtype: numpy.float64
+        :rtype: numpy.ndarray
         """
         
         if expr is None:
@@ -102,10 +102,10 @@ class BedTool(bt):
 
         gene_ids = []
         for interval in intervals:
-            if isinstance(interval, (list, numpy.ndarray)):
+            if isinstance(interval, integer_types):
                 interval = self.__getitem__(interval)
             elif not isinstance(interval, Interval):
-                raise ValueError("Argument 'interval' must be a list or numpy array.")
+                raise ValueError("Argument 'intervals' must be a list or numpy array of indexes or Interval objects.")
             gene_id = interval.attrs['gene_id']
             if not gene_id in expr_dataframe.index:
                 gene_id = None
