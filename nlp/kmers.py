@@ -3,25 +3,27 @@ from math import log
 
 
 class Kmer(str):
-    '''
+    """
     Class to manager kmer objects
-    '''
+    """
     class Token(str):
-        '''
+        """
         Kmer subclass to manage kmer tokens
-        '''
+        """
         k = None
         alphabet = None
         complement = None
         pos = None
         _kmer = None
         def __new__(cls, kmer, *args, sep='', **kwargs):
-            '''
+            """
             Create new Token object extending str
-            :param kmer (Kmer): kmer that token represents
-            :option sep (string): delimiter if kmer is given as list
-            :return obj (Token): new Token object
-            '''
+
+            :param Kmer kmer: kmer that token represents
+            :param str sep: delimiter if kmer is given as list 
+            :return: new Token object
+            :rtype: Token
+            """
             if len(args) > 1:
                 content = sep.join(args)
             elif isinstance(args, tuple) or isinstance(args, list):
@@ -39,19 +41,23 @@ class Kmer(str):
 
 
         def to_kmer(self):
-            '''
+            """
             Convert token into its original kmer
-            :return token (string): token
-            '''
+
+            :return: token
+            :rtype: string
+            """
             return self._kmer
 
 
         def entropy(self, sig=2):
-            '''
+            """
             Compute Shannon entropy for a given kmer corresponding to a token
-            :option sig (int): significant digits after decimal
-            :return entropy (float): Shannon entropy of kmer corresponding to a token
-            '''
+
+            :param int sig: significant digits after decimal (*default: 2*)
+            :return: Shannon entropy of kmer corresponding to a token
+            :rtype: float
+            """
             kmer = self.to_kmer()
             prob = [float(kmer.count(c)) / len(kmer) for c in dict.fromkeys(list(kmer))]
             entropy = - sum([p * log(p) / log(2.0) for p in prob])
@@ -64,15 +70,17 @@ class Kmer(str):
     pos = None
     _token = None
     def __new__(cls, *args, sep='', pos=None, alphabet='atcg', complement='tagc', lower=True, **kwargs):
-        '''
+        """
         Create new Kmer object extending str
-        :option sep (string): delimiter if kmer is given as list
-        :option pos (tuple/list): position of kmer in genome
-        :option alphabet (string): allowed alphabet for kmer
-        :option complement (string): complement to alphabet
-        :option lower (boolean): force kmer to be lowercase
-        :return obj (Kmer): new Kmer object
-        '''
+
+        :param str sep: delimiter if kmer is given as list (*default: ''*)
+        :param tuple/list pos: position of kmer in genome (*default: None*)
+        :param str alphabet: allowed alphabet for kmer (*default: 'atcg'*)
+        :param str complement: complement to alphabet (*default: 'tagc'*)
+        :param boolean lower: force kmer to be lowercase (*default: True*)
+        :return: new Kmer object
+        :rtype: Kmer
+        """
         if len(args) > 1:
             content = sep.join(args)
         elif isinstance(args, tuple) or isinstance(args, list):
@@ -101,30 +109,34 @@ class Kmer(str):
 
 
     def set_alphabet(self, alphabet):
-        '''
+        """
         Set a new alphabet
-        :option alphabet (string): allowed alphabet for kmer
-        '''
+
+        :param str alphabet: allowed alphabet for kmer
+        """
         if not set(self).issubset(set(alphabet)):
             raise ValueError("Kmer characters must be a subset of its alphabet.")
         self.alphabet = alphabet
 
 
     def set_complement(self, complement):
-        '''
+        """
         Set a new complement alphabet
-        :option complement (string): complement to alphabet
-        '''
+
+        :param str complement: complement to alphabet
+        """
         if not set(self).issubset(set(complement)):
             raise ValueError("Kmer characters must be a subset of its complement alphabet.")
         self.complement = complement
     
     
     def lower(self):
-        '''
+        """
         Convert kmer to all lowercase
-        :return kmer_lower (Kmer): kmer in all lowercase
-        '''
+
+        :return: kmer in all lowercase
+        :rtype: Kmer
+        """
         if not set(str(self).lower()).issubset(set(self.alphabet)):
             raise ValueError("Lowercase characters must be a subset of Kmer alphabet.")
         kmer_lower = Kmer(str(self).lower(), alphabet=self.alphabet, complement=self.complement, lower=True)
@@ -132,10 +144,12 @@ class Kmer(str):
 
 
     def upper(self):
-        '''
+        """
         Convert kmer to all uppercase
-        :return kmer_upper (Kmer): kmer in all uppercase
-        '''
+
+        :return: kmer in all uppercase
+        :rtype: Kmer
+        """
         if not set(str(self).upper()).issubset(set(self.alphabet)):
             raise ValueError("Uppercase characters must be a subset of Kmer alphabet.")
         kmer_upper = Kmer(str(self).upper(), alphabet=self.alphabet, complement=self.complement, lower=False)
@@ -143,11 +157,13 @@ class Kmer(str):
 
 
     def to_token(self, complement=None):
-        '''
+        """
         Convert kmer into token
-        :option complement (string): complement of Kmer alphabet
-        :return token (string): token corresponding to a kmer
-        '''
+
+        :param str complement: complement of Kmer alphabet (*default: None*)
+        :return: token corresponding to a kmer
+        :rtype: string
+        """
         if complement is None:
             complement = self.complement
             if self._token is None:
@@ -161,30 +177,34 @@ class Kmer(str):
 
     
     def entropy(self, sig=2):
-        '''
+        """
         Compute Shannon entropy for a given kmer
-        :option sig (int): significant digits after decimal
-        :return entropy (float): Shannon entropy of kmer
-        '''
+
+        :param int sig: significant digits after decimal (*default: 2*)
+        :return: Shannon entropy of kmer
+        :rtype: float
+        """
         prob = [float(self.count(c)) / len(self) for c in dict.fromkeys(list(self))]
         entropy = - sum([p * log(p) / log(2.0) for p in prob])
         return round(entropy, sig)
 
 
 class KmerList(list):
-    '''
+    """
     Class to manage lists of kmers
-    '''
+    """
     class TokenList(list):
-        '''
+        """
         Class to manage lists of kmer tokens 
-        '''
+        """
         def __init__(self, *args, **kwargs):
-            '''
+            """
             Create new TokenList object extending list
-            :param kmers (KmerList): list of kmers corresponding to tokens
-            :return obj (KmerList.TokenList): new TokenList object
-            '''
+
+            :param KmerList kmers: list of kmers corresponding to tokens
+            :return: new TokenList object
+            :rtype: KmerList.TokenList
+            """
             list.__init__(self, *args, **kwargs)
             if len(self) == 0:
                 self.k = None
@@ -197,10 +217,11 @@ class KmerList(list):
 
 
         def append(self, token):
-            '''
+            """
             Append new token to token list
-            :param token (Kmer.Token): token corresponding to a kmer
-            '''
+
+            :param Kmer.Token token: token corresponding to a kmer
+            """
             if len(self) == 0:
                 self.__init__([token])
                 self.k = token.k
@@ -219,19 +240,23 @@ class KmerList(list):
 
 
         def to_kmers(self):
-            '''
+            """
             Convert tokens into their original kmers
-            :return kmers (string): kmers
-            '''
+
+            :return: kmers
+            :rtype: string
+            """
             kmers = KmerList([x.to_kmer() for x in self])
             return kmers
 
 
         def all_tokens(self):
-            '''
+            """
             List all possible unique tokens
-            :return uniq_tokens (KmerList.TokenList): list of all sorted unique tokens
-            '''
+
+            :return: list of all sorted unique tokens
+            :rtype: KmerList.TokenList
+            """
             token_set = set() 
             all_kmers = self.to_kmers().all_kmers()
             for kmer in all_kmers:
@@ -242,11 +267,14 @@ class KmerList(list):
 
 
         def entropy_stopwords(self, sig=2, entropy_threshold=1.3):
-            '''
+            """
             Generate set of stopwords according to Shannon entropy
-            :option entropy_threshold (float): Shannon entropy upper bound for stopwords
-            :return stopwords (KmerList.TokenList): list of sorted low-complexity tokens
-            '''
+
+            :param int sig: Shannon entropy upper bound for stopwords (*default: 2*)
+            :param float entropy_threshold: Shannon entropy upper bound for stopwords (*default: 1.3*)
+            :return: list of sorted low-complexity tokens
+            :rtype: KmerList.TokenList
+            """
             stopword_set = set()
             for token in self:
                 if token.entropy(sig=sig) < entropy_threshold:
@@ -258,13 +286,16 @@ class KmerList(list):
 
     
     def __init__(self, arg, k=None, alphabet=None, complement=None, lower=True, **kwargs):
-        '''
+        """
         Create new KmerList object extending list
-        :option alphabet (string): allowed alphabet for kmer
-        :option complement (string): complement to alphabet
-        :option lower (boolean): force kmer to be lowercase
-        :return obj (KmerList): new KmerList object
-        '''
+
+        :param int k: size of each kmer (*default: None*)
+        :param str alphabet: allowed alphabet for kmer (*default: None*)
+        :param str complement: complement to alphabet (*default: None*)
+        :param boolean lower: force kmer to be lowercase (*default: None*)
+        :return: new KmerList object
+        :rtype: KmerList
+        """
         if lower:
             content = [x.lower() for x in arg]
         else:
@@ -297,10 +328,11 @@ class KmerList(list):
 
 
     def append(self, kmer):
-            '''
+            """
             Append new kmer to kmer list
-            :param kmer (Kmer): kmer
-            '''
+
+            :param Kmer kmer: kmer
+            """
             if len(self) == 0:
                 self.__init__([token])
             else:
@@ -316,11 +348,13 @@ class KmerList(list):
     
     
     def to_tokens(self, complement=None):
-        '''
+        """
         Convert kmer list into token list
-        :option complement (string): complement of Kmer alphabet
-        :return _tokens (list): tokens corresponding to kmers in list
-        '''
+
+        :param str complement: complement of Kmer alphabet (*default: None*)
+        :return: tokens corresponding to kmers in list
+        :rtype: list
+        """
         if complement is None:
             complement = self.complement
             if self._tokens is None:
@@ -337,10 +371,12 @@ class KmerList(list):
 
 
     def all_kmers(self):
-        '''
+        """
         List all possible unique kmers
-        :return uniq_kmers (KmerList): list of all sorted unique kmers
-        '''
+
+        :return: list of all sorted unique kmers
+        :rtype: KmerList
+        """
         kmer_set = set() 
         all_ktuples = product(self.alphabet, repeat=self.k)
         for ktuple in all_ktuples:
@@ -351,11 +387,14 @@ class KmerList(list):
 
 
     def entropy_stopwords(self, sig=2, entropy_threshold=1.3):
-        '''
+        """
         Generate set of stopwords according to Shannon entropy
-        :option entropy_threshold (float): Shannon entropy upper bound for stopwords
-        :return stopwords (KmerList): list of sorted low-complexity kmers
-        '''
+        
+        :param int sig: Shannon entropy upper bound for stopwords (*default: 2*)
+        :param float entropy_threshold: Shannon entropy upper bound for stopwords (*default: 1.3*)
+        :return: list of sorted low-complexity kmers
+        :rtype: KmerList
+        """
         stopword_set = set()
         for t in self:
             if t.entropy(sig=sig) < entropy_threshold:

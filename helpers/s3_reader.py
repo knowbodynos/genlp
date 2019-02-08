@@ -2,11 +2,12 @@ import boto3
 import botocore
 
 def pull(bucket_name, s3_keys):
-    '''
+    """
     Download files from s3 bucket
-    :param bucket_name (string): name of s3 bucket
-    :param s3_keys (dict): dictionary with s3 keys and the corresponding local paths to download them to
-    '''
+
+    :param str bucket_name: name of s3 bucket
+    :param dict s3_keys: dictionary with s3 keys and the corresponding local paths to download them to
+    """
     s3 = boto3.resource('s3')
     try:
         for s3_key, local_path in s3_keys.items():

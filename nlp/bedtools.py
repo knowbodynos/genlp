@@ -7,24 +7,24 @@ from .kmers import Kmer, KmerList
 
 
 class BedTool(bt):
-    '''
-    Class to wrap pybedtools.bt for use with machine learning and
+    """
+    Class to wrap pybedtools.BedTool for use with machine learning and
     natural language processing
-    '''
+    """
     _fasta = None
     _expr = None
     alphabet = None
     complement = None
     def __new__(cls, *args, fasta=None, expr=None, alphabet='atcg', complement='tagc', **kwargs):
-        '''
-        Initialize btML object
-        :option fasta (string/io.TextIOWrapper): path to fasta file or stream
-        :option expr (string): path to normalized feature count table
-        :option alphabet (string): characters in alphabet
-        :option complement (string): complement alphabet
-        '''
-        if (len(args) == 1) and \
-           (isinstance(args, bt) or isinstance(args, btML)):
+        """
+        Initialize BedTool object
+
+        :param str/io.TextIOWrapper fasta: path to fasta file or stream (*default: None*)
+        :param str expr: path to normalized feature count table (*default: None*)
+        :param str alphabet: characters in alphabet (*default: 'atcg'*)
+        :param str complement: complement alphabet (*default: 'tagc'*)
+        """
+        if (len(args) == 1) and isinstance(args, (bt, BedTool)):
             obj = args[0]
         else:
             obj = bt.__new__(cls)
@@ -49,41 +49,46 @@ class BedTool(bt):
     
     
     def saveas(self, *args, **kwargs):
-        '''
-        Wrapper for bt.saveas(*args, **kwargs)
+        """
+        Wrapper for pybedtools.BedTool.saveas(\*args, \**kwargs)
+
         Creates tempfile to store intermediate data, allows IntervalIterator to reset
-        '''
-        return btML(super(btML, self).saveas(*args, **kwargs))
+        """
+        return BedTool(super(BedTool, self).saveas(*args, **kwargs))
     
     
     def remove_invalid(self, *args, **kwargs):
-        '''
-        Wrapper for bt.remove_invalid(*args, **kwargs)
+        """
+        Wrapper for pybedtools.BedTool.remove_invalid(\*args, \**kwargs)
         
         Removes invalid entries from GTF/GFF files (i.e. chromosomes with 
         negative coordinates or features of zero length
-        '''
-        return btML(super(btML, self).remove_invalid(*args, **kwargs))
+        """
+        return BedTool(super(BedTool, self).remove_invalid(*args, **kwargs))
     
     
     def subset_feature(self, feature_type):
-        '''
+        """
         Extract feature type from each gene
-        :param feature_type (string): type of gene feature (e.g. five_prime_utr, three_prime_utr, exon, etc.)
-        :return feature_iter (bt): pybedtools interval iterator limited to region_type intervals
-        '''
-        feature_iter = btML(self.filter(lambda x: x[2] == feature_type))
+
+        :param str feature_type: type of gene feature (e.g. five_prime_utr, three_prime_utr, exon, etc.)
+        :return: pybedtools interval iterator limited to region_type intervals
+        :rtype: BedTool
+        """
+        feature_iter = BedTool(self.filter(lambda x: x[2] == feature_type))
         return feature_iter
 
     
     def read_expression_level(self, interval, expr=None, sample_regex=None):
-        '''
+        """
         Read expression level for gene corresponding to a given interval
-        :param interval (int/Interval): index of interval or pybedtools Interval object
-        :option expr (string): path to normalized feature count table
-        :option sample_regex (string): regex to filter by sample name
-        :return mean_expr_level (float): mean expression level for gene corresponding to interval
-        '''
+
+        :param int/Interval interval: index of interval or pybedtools Interval object
+        :param str expr: path to normalized feature count table (*default: None*)
+        :param str sample_regex: regex to filter by sample name (*default: None*)
+        :return: mean expression level for gene corresponding to interval
+        :rtype: float
+        """
         
         if expr is None:
             if self._expr is None:
@@ -110,14 +115,16 @@ class BedTool(bt):
 
     
     def read_seq(self, interval, fasta=None, upstream=0, downstream=0):
-        '''
+        """
         Read sequence from annotated interval in fasta file
-        :param interval (int/Interval): index of interval or pybedtools Interval object
-        :option fasta (string/io.TextIOWrapper): path to fasta file or stream
-        :option upstream (integer): number of bases upstream from interval to read
-        :option downstream (integer): number of bases downstream from interval to read
-        :return sequence (string): raw interval sequence from fasta file
-        '''
+
+        :param int/Interval interval: index of interval or pybedtools Interval object
+        :param str/io.TextIOWrapper fasta: path to fasta file or stream (*default: None*)
+        :param int upstream: number of bases upstream from interval to read (*default: 0*)
+        :param int downstream: number of bases downstream from interval to read (*default: 0*)
+        :return: raw interval sequence from fasta file
+        :rtype: string
+        """
             
         if fasta is None:
             if self._fasta is None:
@@ -137,16 +144,18 @@ class BedTool(bt):
     
     
     def read_kmers(self, interval, k, fasta=None, upstream=0, downstream=0, offset=1):
-        '''
+        """
         Read kmers from sequence from annotated interval in fasta file
-        :param interval (int/Interval): index of interval or pybedtools Interval object
-        :param k (integer): size of each kmer
-        :option fasta (string/io.TextIOWrapper): path to fasta file or stream
-        :option upstream (integer): number of bases upstream from interval to read
-        :option downstream (integer): number of bases downstream from interval to read
-        :option offset (integer): shift offset between kmers in interval
-        :return kmers (KmerList): list of kmers in interval
-        '''
+
+        :param int/Interval interval: index of interval or pybedtools Interval object
+        :param int k: size of each kmer
+        :param str/io.TextIOWrapper fasta: path to fasta file or stream (*default: None*)
+        :param int upstream: number of bases upstream from interval to read (*default: 0*)
+        :param int downstream: number of bases downstream from interval to read (*default: 0*)
+        :param int offset: shift offset between kmers in interval (*default: 1*)
+        :return: list of kmers in interval
+        :rtype: KmerList
+        """
         if isinstance(interval, integer_types):
             interval = self.__getitem__(interval)
         elif not isinstance(interval, Interval):
@@ -163,16 +172,18 @@ class BedTool(bt):
     
     
     def read_tokens(self, interval, k, fasta=None, upstream=0, downstream=0, offset=1):
-        '''
-        Read tokens from sequence from annotated interval in Fasta file
-        :param interval (int/Interval): index of interval or pybedtools Interval object
-        :param k (integer): size of each kmer
-        :option fasta (string/io.TextIOWrapper): path to fasta file or stream
-        :option upstream (integer): number of bases upstream from interval to read
-        :option downstream (integer): number of bases downstream from interval to read
-        :option offset (integer): shift offset between kmers in interval
-        :return tokens (KmerList.TokenList): list of kmer tokens in interval
-        '''
+        """
+        Read tokens from sequence from annotated interval in fasta file
+
+        :param int/Interval interval: index of interval or pybedtools Interval object
+        :param int k: size of each kmer
+        :param str/io.TextIOWrapper fasta: path to fasta file or stream (*default: None*)
+        :param int upstream: number of bases upstream from interval to read (*default: 0*)
+        :param int downstream: number of bases downstream from interval to read (*default: 0*)
+        :param int offset: shift offset between kmers in interval (*default: 1*)
+        :return: list of kmer tokens in interval
+        :rtype: KmerList.TokenList
+        """
         if isinstance(interval, integer_types):
             interval = self.__getitem__(interval)
         elif not isinstance(interval, Interval):
@@ -189,16 +200,18 @@ class BedTool(bt):
 
 
     def create_corpus(self, intervals, k, fasta=None, upstream=0, downstream=0, offset=1):
-        '''
+        """
         Create corpus of kmer tokens from intervals
-        :param intervals (list): list of interval indexes or pybedtools Interval objects
-        :param k (integer): size of each kmer
-        :option fasta (string/io.TextIOWrapper): path to fasta file or stream
-        :option upstream (integer): number of bases upstream from each interval to read
-        :option downstream (integer): number of bases downstream from each interval to read
-        :option offset (integer): shift offset between kmers in each interval
-        :return corpus (list): corpus of kmer tokens from intervals
-        '''
+        
+        :param list intervals: list of interval indexes or pybedtools Interval objects
+        :param int k: size of each kmer
+        :param str/io.TextIOWrapper fasta: path to fasta file or stream (*default: None*)
+        :param int upstream: number of bases upstream from each interval to read (*default: 0*)
+        :param int downstream: number of bases downstream from each interval to read (*default: 0*)
+        :param int offset: shift offset between kmers in each interval (*default: 1*)
+        :return: corpus of kmer tokens from intervals
+        :rtype: list
+        """
         corpus = []
         for interval in intervals:
             tokens = self.read_tokens(interval, k, fasta=fasta,upstream=upstream,
