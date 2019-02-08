@@ -1,10 +1,13 @@
 import os
 import numpy
-import pandas as pd
+import pandas
 from pybedtools import Interval, helpers, BedTool as bt
 from io import TextIOWrapper
 from six import integer_types, string_types
 from .kmers import Kmer, KmerList
+
+# Add numpy integer types to 
+integer_types = (*integer_types, numpy.int_)
 
 
 class BedTool(bt):
@@ -98,7 +101,7 @@ class BedTool(bt):
             if isinstance(expr, string_types) and os.path.isfile(expr):
                 self._expr = expr
         
-        expr_dataframe = pd.read_csv(self._expr, header=0, index_col=1)
+        expr_dataframe = pandas.read_csv(self._expr, header=0, index_col=1)
 
         gene_ids = []
         for interval in intervals:
