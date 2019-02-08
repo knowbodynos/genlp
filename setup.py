@@ -33,7 +33,8 @@ setup(
         'boto3',
         'botocore',
         'pandas',
-        'pybedtools'
+        'pybedtools',
+        'sphinx_rtd_theme'
       ],
     # classifiers=[
     #     "Programming Language :: Python :: 3",

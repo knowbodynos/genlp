@@ -97,19 +97,21 @@ class BedTool(bt):
             if isinstance(expr, string_types) and os.path.isfile(expr):
                 self._expr = expr
         
+        expr_dataframe = pd.read_csv(self._expr, header=0, index_col=1)
+
         gene_ids = []
         for interval in intervals:
             if isinstance(interval, integer_types):
                 interval = self.__getitem__(interval)
             elif not isinstance(interval, Interval):
                 raise ValueError("Argument 'interval' must be an index or Interval object.")
-            gene_ids.append(interval.attrs['gene_id'])
+            gene_id = interval.attrs['gene_id']
+            if not gene_id in expr_dataframe.index:
+                gene_id = None
+            gene_ids.append(gene_id)
 
-        expr_dataframe = pd.read_csv(self._expr, header=0, index_col=1)
-        if not gene_id in expr_dataframe.index:
-            return None
         start_sample_index = expr_dataframe.columns.tolist().index('Length') + 1
-        expr_levels = expr_dataframe.loc[gene_ids].iloc[start_sample_index:]
+        expr_levels = expr_dataframe.reindex(gene_ids).iloc[start_sample_index:]
         if not sample_regex is None:
             expr_levels = expr_levels.filter(regex=sample_regex)
         mean_expr_levels = expr_levels.mean(axis=1).values
