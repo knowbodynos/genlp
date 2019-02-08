@@ -205,15 +205,15 @@ natural language processing</p>
 </dd></dl>
 
 <dl class="method">
-<dt id="genoml.nlp.bedtools.BedTool.read_expression_level">
-<code class="descname">read_expression_level</code><span class="sig-paren">(</span><em>interval</em>, <em>expr=None</em>, <em>sample_regex=None</em><span class="sig-paren">)</span><a class="headerlink" href="#genoml.nlp.bedtools.BedTool.read_expression_level" title="Permalink to this definition">¶</a></dt>
-<dd><p>Read expression level for gene corresponding to a given interval</p>
+<dt id="genoml.nlp.bedtools.BedTool.read_expression_levels">
+<code class="descname">read_expression_levels</code><span class="sig-paren">(</span><em>intervals</em>, <em>expr=None</em>, <em>sample_regex=None</em><span class="sig-paren">)</span><a class="headerlink" href="#genoml.nlp.bedtools.BedTool.read_expression_levels" title="Permalink to this definition">¶</a></dt>
+<dd><p>Read expression levels for genes corresponding to all given intervals</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>interval</strong> (<em>int/Interval</em>) – index of interval or pybedtools Interval object</li>
+<li><strong>intervals</strong> (<em>list</em>) – list of interval indexes or pybedtools Interval objects</li>
 <li><strong>expr</strong> (<em>str</em>) – path to normalized feature count table (<em>default: None</em>)</li>
 <li><strong>sample_regex</strong> (<em>str</em>) – regex to filter by sample name (<em>default: None</em>)</li>
 </ul>
