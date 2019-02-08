@@ -32,6 +32,7 @@ setup(
         'six',
         'boto3',
         'botocore',
+        'numpy',
         'pandas',
         'pybedtools',
         'sphinx_rtd_theme'

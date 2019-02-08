@@ -1,4 +1,5 @@
 import os
+import numpy
 import pandas as pd
 from pybedtools import Interval, helpers, BedTool as bt
 from io import TextIOWrapper
@@ -87,7 +88,7 @@ class BedTool(bt):
         :param str expr: path to normalized feature count table (*default: None*)
         :param str sample_regex: regex to filter by sample name (*default: None*)
         :return: mean expression level for gene corresponding to interval
-        :rtype: float
+        :rtype: numpy.float64
         """
         
         if expr is None:
@@ -111,7 +112,7 @@ class BedTool(bt):
             gene_ids.append(gene_id)
 
         start_sample_index = expr_dataframe.columns.tolist().index('Length') + 1
-        expr_levels = expr_dataframe.reindex(gene_ids).iloc[start_sample_index:]
+        expr_levels = expr_dataframe.reindex(gene_ids).iloc[:, start_sample_index:]
         if not sample_regex is None:
             expr_levels = expr_levels.filter(regex=sample_regex)
         mean_expr_levels = expr_levels.mean(axis=1).values
