@@ -4,7 +4,7 @@ import pandas
 from pybedtools import Interval, helpers, BedTool as bt
 from io import TextIOWrapper
 from six import integer_types, string_types
-from .kmers import Kmer, KmerList
+from .kmers import Kmer, KmerList, KmerCorpus
 
 # Add numpy integer types to 
 integer_types = (*integer_types, numpy.int_)
