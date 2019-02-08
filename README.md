@@ -6,6 +6,8 @@ cd work
 git clone https://github.com/knowbodynos/genoml.git
 pip install -e ./genoml
 ```
+## Documentation
+See [documentation](http://htmlpreview.github.io/?https://github.com/knowbodynos/genoml/blob/master/docs/build/html/modules.html)
 ## Usage
 ### Example
 ```
