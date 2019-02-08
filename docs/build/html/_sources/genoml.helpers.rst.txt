@@ -4,10 +4,10 @@ genoml.helpers package
 Submodules
 ----------
 
-genoml.helpers.s3\_reader module
---------------------------------
+genoml.helpers.s3 module
+------------------------
 
-.. automodule:: genoml.helpers.s3_reader
+.. automodule:: genoml.helpers.s3
     :members:
     :undoc-members:
     :show-inheritance:

@@ -7,14 +7,14 @@ git clone https://github.com/knowbodynos/genoml.git
 pip install -e ./genoml
 ```
 ## Documentation
-See [documentation](http://htmlpreview.github.io/?https://github.com/knowbodynos/genoml/blob/master/docs/build/html/modules.html)
+See [documentation](http://htmlpreview.github.io/?https://github.com/knowbodynos/genoml/blob/master/docs/build/html/modules.html).
 ## Usage
 ### Example
 ```
 # Import dependencies
 import os
 from sklearn.feature_extraction.text import TfidfVectorizer
-import s3_reader as s3
+import genoml.helpers.s3 as s3
 from genoml.nlp.bedtools import BedTool, helpers as bth
 
 # Cleanup temporary files from previous sessions
