@@ -43,21 +43,29 @@ genes = BedTool(GTF_PATH).remove_invalid().saveas()
 # Subset 5' UTR regions
 utr_5s = genes.subset_feature('five_prime_utr').saveas()
 
+# Read expression levels and filter skipped gene_ids
+Y = utr_5s.read_expression_levels(np.arange(100), expr=EXPR_PATH, sample_regex='SRR')
+expr_inds = np.flatnonzero(~np.isnan(Y))
+Y = Y[expr_inds]
+
 # Create corpus of kmer tokens from the first 100 5' UTR regions (including 1000 base pairs upstream)
-corpus = utr_5s.create_corpus(range(100), k=3, fasta=FASTA_PATH, upstream=1000)
+corpus = utr_5s.create_corpus(expr_inds, k=3, fasta=FASTA_PATH, upstream=1000)
+
+# Generate stopwords based on kmer Shannon entropy
+stopwords = corpus.entropy_stopwords(sig=2, entropy_threshold=1.0)
 
 # Create TF-IDF vocabulary for training bag-of-kmers models
 tmpvectorizer = TfidfVectorizer(min_df = 1 , max_df = 1.0,
+                                stop_words=stopwords,
                                 sublinear_tf=True, use_idf=True,
                                 token_pattern=r'\S+')
 tmpvectorizer.fit(corpus)
+vocab = tmpvectorizer.get_feature_names()
 
 # Generate TF-IDF vectors for bag-of-kmers models
 vectorizer = TfidfVectorizer(min_df = 1 , max_df = 1.0,
-                                sublinear_tf=True, use_idf=True,
-                                token_pattern=r'\S+', vocabulary = vocab)
+                             stop_words=stopwords,
+                             sublinear_tf=True, use_idf=True,
+                             token_pattern=r'\S+', vocabulary = vocab)
 X = vectorizer.fit_transform(corpus)
-
-# Generate gene expression levels for the first 100 5' UTR regions for bag-of-kmers models
-Y = utr_5s.read_expression_levels(range(100), expr=EXPR_PATH)
 ```
