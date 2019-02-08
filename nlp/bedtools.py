@@ -207,7 +207,7 @@ class BedTool(bt):
         return tokens
 
 
-    def create_corpus(self, intervals, k, fasta=None, upstream=0, downstream=0, offset=1):
+    def create_corpus(self, intervals, k, fasta=None, upstream=0, downstream=0, offset=1, sep=''):
         """
         Create corpus of kmer tokens from intervals
         
@@ -217,6 +217,7 @@ class BedTool(bt):
         :param int upstream: number of bases upstream from each interval to read (*default: 0*)
         :param int downstream: number of bases downstream from each interval to read (*default: 0*)
         :param int offset: shift offset between kmers in each interval (*default: 1*)
+        :param str sep: delimiter for token 'words'
         :return: corpus of kmer tokens from intervals
         :rtype: list
         """
@@ -224,5 +225,5 @@ class BedTool(bt):
         for interval in intervals:
             tokens = self.read_tokens(interval, k, fasta=fasta,upstream=upstream,
                                                    downstream=downstream, offset=offset)
-            corpus.append(' '.join(tokens))
-        return corpus
+            corpus.append(KmerCorpus.TokenSentence(tokens, sep=sep))
+        return KmerCorpus(corpus)

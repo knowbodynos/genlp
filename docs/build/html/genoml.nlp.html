@@ -178,7 +178,7 @@ natural language processing</p>
 
 <dl class="method">
 <dt id="genoml.nlp.bedtools.BedTool.create_corpus">
-<code class="descname">create_corpus</code><span class="sig-paren">(</span><em>intervals</em>, <em>k</em>, <em>fasta=None</em>, <em>upstream=0</em>, <em>downstream=0</em>, <em>offset=1</em><span class="sig-paren">)</span><a class="headerlink" href="#genoml.nlp.bedtools.BedTool.create_corpus" title="Permalink to this definition">¶</a></dt>
+<code class="descname">create_corpus</code><span class="sig-paren">(</span><em>intervals</em>, <em>k</em>, <em>fasta=None</em>, <em>upstream=0</em>, <em>downstream=0</em>, <em>offset=1</em>, <em>sep=''</em><span class="sig-paren">)</span><a class="headerlink" href="#genoml.nlp.bedtools.BedTool.create_corpus" title="Permalink to this definition">¶</a></dt>
 <dd><p>Create corpus of kmer tokens from intervals</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -191,6 +191,7 @@ natural language processing</p>
 <li><strong>upstream</strong> (<em>int</em>) – number of bases upstream from each interval to read (<em>default: 0</em>)</li>
 <li><strong>downstream</strong> (<em>int</em>) – number of bases downstream from each interval to read (<em>default: 0</em>)</li>
 <li><strong>offset</strong> (<em>int</em>) – shift offset between kmers in each interval (<em>default: 1</em>)</li>
+<li><strong>sep</strong> (<em>str</em>) – delimiter for token ‘words’</li>
 </ul>
 </td>
 </tr>
@@ -469,6 +470,11 @@ negative coordinates or features of zero length</p>
 <code class="descname">pos</code><em class="property"> = None</em><a class="headerlink" href="#genoml.nlp.kmers.Kmer.pos" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
+<dl class="attribute">
+<dt id="genoml.nlp.kmers.Kmer.sep">
+<code class="descname">sep</code><em class="property"> = None</em><a class="headerlink" href="#genoml.nlp.kmers.Kmer.sep" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
 <dl class="method">
 <dt id="genoml.nlp.kmers.Kmer.set_alphabet">
 <code class="descname">set_alphabet</code><span class="sig-paren">(</span><em>alphabet</em><span class="sig-paren">)</span><a class="headerlink" href="#genoml.nlp.kmers.Kmer.set_alphabet" title="Permalink to this definition">¶</a></dt>
@@ -534,6 +540,191 @@ negative coordinates or features of zero length</p>
 </dd></dl>
 
 <dl class="class">
+<dt id="genoml.nlp.kmers.KmerCorpus">
+<em class="property">class </em><code class="descclassname">genoml.nlp.kmers.</code><code class="descname">KmerCorpus</code><span class="sig-paren">(</span><em>arg</em>, <em>k=None</em>, <em>alphabet=None</em>, <em>complement=None</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#genoml.nlp.kmers.KmerCorpus" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code></p>
+<p>Class to manage corpora of kmer tokens</p>
+<dl class="class">
+<dt id="genoml.nlp.kmers.KmerCorpus.TokenSentence">
+<em class="property">class </em><code class="descname">TokenSentence</code><a class="headerlink" href="#genoml.nlp.kmers.KmerCorpus.TokenSentence" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></p>
+<p>Class to manage lists of kmer tokens</p>
+<dl class="method">
+<dt id="genoml.nlp.kmers.KmerCorpus.TokenSentence.all_tokens">
+<code class="descname">all_tokens</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#genoml.nlp.kmers.KmerCorpus.TokenSentence.all_tokens" title="Permalink to this definition">¶</a></dt>
+<dd><p>List all possible unique tokens</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">list of all sorted unique tokens</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference internal" href="#genoml.nlp.kmers.KmerList.TokenList" title="genoml.nlp.kmers.KmerList.TokenList">KmerList.TokenList</a></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="genoml.nlp.kmers.KmerCorpus.TokenSentence.alphabet">
+<code class="descname">alphabet</code><em class="property"> = None</em><a class="headerlink" href="#genoml.nlp.kmers.KmerCorpus.TokenSentence.alphabet" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="genoml.nlp.kmers.KmerCorpus.TokenSentence.complement">
+<code class="descname">complement</code><em class="property"> = None</em><a class="headerlink" href="#genoml.nlp.kmers.KmerCorpus.TokenSentence.complement" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="genoml.nlp.kmers.KmerCorpus.TokenSentence.entropy_stopwords">
+<code class="descname">entropy_stopwords</code><span class="sig-paren">(</span><em>sig=2</em>, <em>entropy_threshold=1.3</em><span class="sig-paren">)</span><a class="headerlink" href="#genoml.nlp.kmers.KmerCorpus.TokenSentence.entropy_stopwords" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generate set of stopwords according to Shannon entropy</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>sig</strong> (<em>int</em>) – Shannon entropy upper bound for stopwords (<em>default: 2</em>)</li>
+<li><strong>entropy_threshold</strong> (<em>float</em>) – Shannon entropy upper bound for stopwords (<em>default: 1.3</em>)</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">list of sorted low-complexity tokens</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last"><a class="reference internal" href="#genoml.nlp.kmers.KmerList.TokenList" title="genoml.nlp.kmers.KmerList.TokenList">KmerList.TokenList</a></p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="genoml.nlp.kmers.KmerCorpus.TokenSentence.k">
+<code class="descname">k</code><em class="property"> = None</em><a class="headerlink" href="#genoml.nlp.kmers.KmerCorpus.TokenSentence.k" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="genoml.nlp.kmers.KmerCorpus.TokenSentence.to_kmers">
+<code class="descname">to_kmers</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#genoml.nlp.kmers.KmerCorpus.TokenSentence.to_kmers" title="Permalink to this definition">¶</a></dt>
+<dd><p>Convert tokens into their original kmers</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">kmers</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference internal" href="#genoml.nlp.kmers.KmerList" title="genoml.nlp.kmers.KmerList">KmerList</a></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="genoml.nlp.kmers.KmerCorpus.TokenSentence.to_tokens">
+<code class="descname">to_tokens</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#genoml.nlp.kmers.KmerCorpus.TokenSentence.to_tokens" title="Permalink to this definition">¶</a></dt>
+<dd><p>Convert kmers to tokens</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">tokens</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference internal" href="#genoml.nlp.kmers.KmerList.TokenList" title="genoml.nlp.kmers.KmerList.TokenList">TokenList</a></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="method">
+<dt id="genoml.nlp.kmers.KmerCorpus.all_kmers">
+<code class="descname">all_kmers</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#genoml.nlp.kmers.KmerCorpus.all_kmers" title="Permalink to this definition">¶</a></dt>
+<dd><p>List all possible unique kmers</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">list of all sorted unique kmers</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference internal" href="#genoml.nlp.kmers.KmerList" title="genoml.nlp.kmers.KmerList">KmerList</a></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="genoml.nlp.kmers.KmerCorpus.all_tokens">
+<code class="descname">all_tokens</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#genoml.nlp.kmers.KmerCorpus.all_tokens" title="Permalink to this definition">¶</a></dt>
+<dd><p>List all possible unique tokens</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">list of all sorted unique tokens</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference internal" href="#genoml.nlp.kmers.KmerList.TokenList" title="genoml.nlp.kmers.KmerList.TokenList">KmerList.TokenList</a></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="genoml.nlp.kmers.KmerCorpus.append">
+<code class="descname">append</code><span class="sig-paren">(</span><em>token_sentence</em><span class="sig-paren">)</span><a class="headerlink" href="#genoml.nlp.kmers.KmerCorpus.append" title="Permalink to this definition">¶</a></dt>
+<dd><p>Append new KmerCorpus.TokenSentence to KmerCorpus</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>token_sentence</strong> (<a class="reference internal" href="#genoml.nlp.kmers.KmerCorpus.TokenSentence" title="genoml.nlp.kmers.KmerCorpus.TokenSentence"><em>KmerCorpus.TokenSentence</em></a>) – kmer token sentence</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="genoml.nlp.kmers.KmerCorpus.entropy_stopwords">
+<code class="descname">entropy_stopwords</code><span class="sig-paren">(</span><em>sig=2</em>, <em>entropy_threshold=1.3</em><span class="sig-paren">)</span><a class="headerlink" href="#genoml.nlp.kmers.KmerCorpus.entropy_stopwords" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generate set of stopwords according to Shannon entropy</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>sig</strong> (<em>int</em>) – Shannon entropy upper bound for stopwords (<em>default: 2</em>)</li>
+<li><strong>entropy_threshold</strong> (<em>float</em>) – Shannon entropy upper bound for stopwords (<em>default: 1.3</em>)</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">list of sorted low-complexity tokens</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last"><a class="reference internal" href="#genoml.nlp.kmers.KmerList.TokenList" title="genoml.nlp.kmers.KmerList.TokenList">KmerList.TokenList</a></p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="genoml.nlp.kmers.KmerCorpus.extend">
+<code class="descname">extend</code><span class="sig-paren">(</span><em>kmer_corpus</em><span class="sig-paren">)</span><a class="headerlink" href="#genoml.nlp.kmers.KmerCorpus.extend" title="Permalink to this definition">¶</a></dt>
+<dd><p>Extend KmerCorpus with another KmerCorpus</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>kmer_corpus</strong> (<a class="reference internal" href="#genoml.nlp.kmers.KmerCorpus" title="genoml.nlp.kmers.KmerCorpus"><em>KmerCorpus</em></a>) – kmer token corpus</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
 <dt id="genoml.nlp.kmers.KmerList">
 <em class="property">class </em><code class="descclassname">genoml.nlp.kmers.</code><code class="descname">KmerList</code><span class="sig-paren">(</span><em>arg</em>, <em>k=None</em>, <em>alphabet=None</em>, <em>complement=None</em>, <em>lower=True</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#genoml.nlp.kmers.KmerList" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code></p>
@@ -562,7 +753,7 @@ negative coordinates or features of zero length</p>
 <dl class="method">
 <dt id="genoml.nlp.kmers.KmerList.TokenList.append">
 <code class="descname">append</code><span class="sig-paren">(</span><em>token</em><span class="sig-paren">)</span><a class="headerlink" href="#genoml.nlp.kmers.KmerList.TokenList.append" title="Permalink to this definition">¶</a></dt>
-<dd><p>Append new token to token list</p>
+<dd><p>Append new Kmer.Token to KmerList.TokenList</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
@@ -598,6 +789,20 @@ negative coordinates or features of zero length</p>
 </dd></dl>
 
 <dl class="method">
+<dt id="genoml.nlp.kmers.KmerList.TokenList.extend">
+<code class="descname">extend</code><span class="sig-paren">(</span><em>tokens</em><span class="sig-paren">)</span><a class="headerlink" href="#genoml.nlp.kmers.KmerList.TokenList.extend" title="Permalink to this definition">¶</a></dt>
+<dd><p>Extend KmerList.TokenList with another KmerList.TokenList</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>tokens</strong> (<a class="reference internal" href="#genoml.nlp.kmers.KmerList.TokenList" title="genoml.nlp.kmers.KmerList.TokenList"><em>KmerList.TokenList</em></a>) – tokens corresponding to kmers</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
 <dt id="genoml.nlp.kmers.KmerList.TokenList.to_kmers">
 <code class="descname">to_kmers</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#genoml.nlp.kmers.KmerList.TokenList.to_kmers" title="Permalink to this definition">¶</a></dt>
 <dd><p>Convert tokens into their original kmers</p>
@@ -607,7 +812,7 @@ negative coordinates or features of zero length</p>
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">kmers</td>
 </tr>
-<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">string</td>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference internal" href="#genoml.nlp.kmers.KmerList" title="genoml.nlp.kmers.KmerList">KmerList</a></td>
 </tr>
 </tbody>
 </table>
@@ -634,7 +839,7 @@ negative coordinates or features of zero length</p>
 <dl class="method">
 <dt id="genoml.nlp.kmers.KmerList.append">
 <code class="descname">append</code><span class="sig-paren">(</span><em>kmer</em><span class="sig-paren">)</span><a class="headerlink" href="#genoml.nlp.kmers.KmerList.append" title="Permalink to this definition">¶</a></dt>
-<dd><p>Append new kmer to kmer list</p>
+<dd><p>Append new Kmer to KmerList</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
@@ -659,11 +864,25 @@ negative coordinates or features of zero length</p>
 </ul>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">list of sorted low-complexity kmers</p>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">list of sorted low-complexity tokens</p>
 </td>
 </tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last"><a class="reference internal" href="#genoml.nlp.kmers.KmerList" title="genoml.nlp.kmers.KmerList">KmerList</a></p>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last"><a class="reference internal" href="#genoml.nlp.kmers.KmerList.TokenList" title="genoml.nlp.kmers.KmerList.TokenList">KmerList.TokenList</a></p>
 </td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="genoml.nlp.kmers.KmerList.extend">
+<code class="descname">extend</code><span class="sig-paren">(</span><em>kmers</em><span class="sig-paren">)</span><a class="headerlink" href="#genoml.nlp.kmers.KmerList.extend" title="Permalink to this definition">¶</a></dt>
+<dd><p>Extend KmerList with another KmerList</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>kmer</strong> (<a class="reference internal" href="#genoml.nlp.kmers.Kmer" title="genoml.nlp.kmers.Kmer"><em>Kmer</em></a>) – kmer</td>
 </tr>
 </tbody>
 </table>
@@ -681,7 +900,7 @@ negative coordinates or features of zero length</p>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">tokens corresponding to kmers in list</td>
 </tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">list</td>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference internal" href="#genoml.nlp.kmers.KmerList.TokenList" title="genoml.nlp.kmers.KmerList.TokenList">KmerList.TokenList</a></td>
 </tr>
 </tbody>
 </table>
