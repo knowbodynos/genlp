@@ -102,10 +102,10 @@ class BedTool(bt):
 
         gene_ids = []
         for interval in intervals:
-            if isinstance(interval, integer_types):
+            if isinstance(interval, (list, numpy.ndarray)):
                 interval = self.__getitem__(interval)
             elif not isinstance(interval, Interval):
-                raise ValueError("Argument 'interval' must be an index or Interval object.")
+                raise ValueError("Argument 'interval' must be a list or numpy array.")
             gene_id = interval.attrs['gene_id']
             if not gene_id in expr_dataframe.index:
                 gene_id = None
