@@ -106,7 +106,7 @@ class BedTool(bt):
         gene_ids = []
         for interval in intervals:
             if isinstance(interval, integer_types):
-                interval = self.__getitem__(interval)
+                interval = self.__getitem__(int(interval))
             elif not isinstance(interval, Interval):
                 raise ValueError("Argument 'intervals' must be a list or numpy array of indexes or Interval objects.")
             gene_id = interval.attrs['gene_id']
@@ -143,7 +143,7 @@ class BedTool(bt):
                 self._fasta = fasta
         
         if isinstance(interval, integer_types):
-            interval = self.__getitem__(interval)
+            interval = self.__getitem__(int(interval))
         elif not isinstance(interval, Interval):
             raise ValueError("Argument 'interval' must be an index or Interval object.")
         
@@ -165,7 +165,7 @@ class BedTool(bt):
         :rtype: KmerList
         """
         if isinstance(interval, integer_types):
-            interval = self.__getitem__(interval)
+            interval = self.__getitem__(int(interval))
         elif not isinstance(interval, Interval):
             raise ValueError("Argument 'interval' must be an index or Interval object.")
 
@@ -193,7 +193,7 @@ class BedTool(bt):
         :rtype: KmerList.TokenList
         """
         if isinstance(interval, integer_types):
-            interval = self.__getitem__(interval)
+            interval = self.__getitem__(int(interval))
         elif not isinstance(interval, Interval):
             raise ValueError("Argument 'interval' must be an index or Interval object.")
 
