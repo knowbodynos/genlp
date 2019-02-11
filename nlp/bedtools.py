@@ -63,11 +63,13 @@ class BedTool(bt):
             if not (isinstance(intervals, list_types) or hasattr(intervals, '__getitem__')):
                 intervals = [intervals]
 
-            tokens = self._bedtool.read_tokens(interval, self.k, fasta=new_locals['fasta'], 
-                                                                 upstream=new_locals['upstream'],
-                                                                 downstream=new_locals['downstream'],
-                                                                 offset=new_locals['offset'])
-            corpus = [KmerCorpus.TokenSentence(tokens, sep=new_locals['sep'])]
+            corpus = []
+            for interval in intervals:
+                tokens = self._bedtool.read_tokens(interval, self.k, fasta=new_locals['fasta'], 
+                                                                     upstream=new_locals['upstream'],
+                                                                     downstream=new_locals['downstream'],
+                                                                     offset=new_locals['offset'])
+                corpus.append(KmerCorpus.TokenSentence(tokens, sep=new_locals['sep']))
             return KmerCorpus(corpus)
 
 
