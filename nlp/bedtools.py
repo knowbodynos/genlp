@@ -9,7 +9,7 @@ from .kmers import Kmer, KmerList, KmerCorpus
 
 # Add numpy integer types to 
 integer_types = (*integer_types, numpy.int_)
-list_types = (list, tuple, set, iter, numpy.ndarray)
+list_types = (list, tuple, set, numpy.ndarray)
 
 
 class BedTool(bt):
@@ -109,7 +109,7 @@ class BedTool(bt):
         
         expr_dataframe = pandas.read_csv(self._expr, header=0, index_col=1)
 
-        if not isinstance(intervals, list_types):
+        if not (isinstance(intervals, list_types) or hasattr(intervals, __getitem__)):
             intervals = [intervals]
 
         def _get_gene_id(interval):
@@ -246,7 +246,7 @@ class BedTool(bt):
         assert(isinstance(chunksize, integer_types) and (chunksize > 0))
 
         
-        if not isinstance(intervals, list_types):
+        if not (isinstance(intervals, list_types) or hasattr(intervals, __getitem__):
             intervals = [intervals]
 
         def _get_token_sentence(interval):
