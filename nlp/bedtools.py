@@ -21,13 +21,13 @@ class BedTool(bt):
         """
         Class to create a corpus object from a bedtool
         """
-        def __init__(self, bedtool, k, fasta=None, upstream=0, downstream=0, offset=1, sep=''):
+        def __init__(self, bedtool, k, fasta=None, upstream=0, downstream=0, offset=1, sep=' '):
             """
             Initialize corpus object of kmer tokens
             
             :param BedTool bedtool: bedtool object
             :param int k: size of each kmer
-            :param str/io.TextIOWrapper fasta: path to fasta file or stream (*default: None*)
+            :param str fasta: path to fasta file or stream (*default: None*)
             :param int upstream: number of bases upstream from each interval to read (*default: 0*)
             :param int downstream: number of bases downstream from each interval to read (*default: 0*)
             :param int offset: shift offset between kmers in each interval (*default: 1*)
@@ -42,20 +42,32 @@ class BedTool(bt):
             self.sep = sep
 
 
-        def __call__(self, intervals):
+        def __call__(self, intervals, fasta=None, upstream=None, downstream=None, offset=None, sep=None):
             """
             Return kmer tokens from intervals
             
             :param list intervals: list of interval indexes or pybedtools Interval objects
+            :param str fasta: path to fasta file or stream (*default: None*)
+            :param int upstream: number of bases upstream from each interval to read (*default: None*)
+            :param int downstream: number of bases downstream from each interval to read (*default: None*)
+            :param int offset: shift offset between kmers in each interval (*default: None*)
+            :param str sep: delimiter for token 'words'
             :return: corpus of kmer tokens from intervals
             :rtype: list
             """
+            new_locals = locals()
+            for k, v in new_locals.items():
+                if v is None:
+                    new_locals[k] = self.__dict__[k]
+
             if not (isinstance(intervals, list_types) or hasattr(intervals, __getitem__)):
                 intervals = [intervals]
 
-            tokens = self._bedtool.read_tokens(interval, self.k, fasta=self.fasta, upstream=self.upstream,
-                                                   downstream=self.downstream, offset=self.offset)
-            corpus = [KmerCorpus.TokenSentence(tokens, sep=self.sep)]
+            tokens = self._bedtool.read_tokens(interval, self.k, fasta=new_locals['fasta'], 
+                                                                 upstream=new_locals['upstream'],
+                                                                 downstream=new_locals['downstream'],
+                                                                 offset=new_locals['offset'])
+            corpus = [KmerCorpus.TokenSentence(tokens, sep=new_locals['sep'])]
             return KmerCorpus(corpus)
 
 
@@ -287,7 +299,7 @@ class BedTool(bt):
         :return: BedTool.CorpusGen of kmer tokens
         :rtype: BedTool.CorpusGen
         """
-        return BedTool.CorpusGen(self, k, fasta=None, upstream=0, downstream=0, offset=1, sep='')
+        return BedTool.CorpusGen(self, k, fasta=None, upstream=0, downstream=0, offset=1, sep=' ')
 
 
     def get_target(self, expr_path, **kwargs):
