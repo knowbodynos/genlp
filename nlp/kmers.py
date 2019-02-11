@@ -12,31 +12,34 @@ class Kmer(str):
         Kmer subclass to manage kmer tokens
         """
         k = None
+        pos = None
         alphabet = None
         complement = None
-        pos = None
         _kmer = None
-        def __new__(cls, kmer, *args, sep='', **kwargs):
+        def __new__(cls, kmer, *args, pos=None, alphabet='atcg', complement='tagc', sep='', **kwargs):
             """
             Create new Kmer.Token object extending str
 
             :param Kmer kmer: kmer that token represents
+            :param tuple/list pos: position of kmer in genome (*default: None*)
+            :param str alphabet: allowed alphabet for kmer (*default: 'atcg'*)
+            :param str complement: complement to alphabet (*default: 'tagc'*)
             :param str sep: delimiter if kmer is given as list 
             :return: new Kmer.Token object
             :rtype: Kmer.Token
             """
             if len(args) > 1:
                 content = sep.join(args)
-            elif isinstance(args, tuple) or isinstance(args, list):
+            elif isinstance(args, (list, tuple)):
                 content = sep.join(*args)
             else:
                 content = args[0]
 
             obj = str.__new__(cls, content)
-            obj.k = kmer.k
-            obj.alphabet = kmer.alphabet
-            obj.complement = kmer.complement
-            obj.pos = kmer.pos
+            obj.k = len(kmer)
+            obj.pos = pos
+            obj.alphabet = alphabet
+            obj.complement = complement
             obj._kmer = kmer
             return obj
 
@@ -85,7 +88,7 @@ class Kmer(str):
         """
         if len(args) > 1:
             content = sep.join(args)
-        elif isinstance(args, tuple) or isinstance(args, list):
+        elif isinstance(args, (list, tuple)):
             content = sep.join(*args)
         else:
             content = args[0]
@@ -172,7 +175,7 @@ class Kmer(str):
             if self._token is None:
                 kmer = self.lower()
                 rev_comp_kmer = self.translate(str.maketrans(self.alphabet, complement))[::-1]
-                self._token = Kmer.Token(kmer, "|".join(sorted([self, rev_comp_kmer])))
+                self._token = Kmer.Token(kmer, "|".join(sorted([self, rev_comp_kmer])), pos=self.pos, alphabet=self.alphabet, complement=self.complement)
         else:
             if set(complement) != set(self.alphabet):
                 raise ValueError("Complement alphabet must be a permutation of alphabet.")
@@ -220,7 +223,7 @@ class KmerList(list):
                     elif isinstance(arg, Kmer.Token):
                         pass
                     else:
-                        raise ValueError("Argument must be a list, KmerList, or KmerList.TokenList type.")
+                        raise ValueError("Argument of type {} is not a list, KmerList, or KmerList.TokenList type.".format(type(arg)))
 
                     if arg.k != self[0].k:
                         raise ValueError("Kmer sizes must match.")
@@ -470,15 +473,16 @@ class KmerCorpus(list):
         _sep = None
         _kmers = None
         _tokens = None
-        def __new__(cls, *args, sep=' ', **kwargs):
+        def __new__(cls, token_list=None, sep=' ', **kwargs):
             """
             Create new KmerCorpus.TokenSentence object extending list
 
-            :param str sep: delimiter for token 'words'
+            :param KmerList.TokenList token_list: list of kmer tokens (*default: None*)
+            :param str sep: delimiter for token 'words' (*default: ''*)
             :return: new KmerCorpus.TokenSentence object
             :rtype: KmerCorpus.TokenSentence
             """
-            if len(args) == 0:
+            if token_list is None:
                 obj = str.__new__(cls, '')
 
                 kmers = None
@@ -489,18 +493,17 @@ class KmerCorpus(list):
                 obj.complement = None
 
             else:
-                first_arg = args[0]
                 content = ''
                 kmers = []
-                for arg in first_arg:
-                    if isinstance(arg, Kmer):
-                        kmer = arg
-                        token = arg.to_token()
-                    elif isinstance(arg, Kmer.Token):
-                        kmer = arg.to_kmer()
-                        token = arg
+                for x in token_list:
+                    if isinstance(x, Kmer):
+                        kmer = x
+                        token = x.to_token()
+                    elif isinstance(x, Kmer.Token):
+                        kmer = x.to_kmer()
+                        token = x
                     else:
-                        raise ValueError("Argument must be a list, KmerList, or KmerList.TokenList type.")
+                        raise ValueError("Argument of type {} is not a list, KmerList, or KmerList.TokenList type.".format(type(x)))
 
                     kmers.append(kmer)
                     if content == '':
@@ -508,18 +511,18 @@ class KmerCorpus(list):
                     else:
                         content = sep.join([content, token])
 
-                    if arg.k != first_arg[0].k:
+                    if x.k != token_list[0].k:
                         raise ValueError("Kmer sizes must match.")
-                    elif set(arg.alphabet) != set(first_arg[0].alphabet):
+                    elif set(x.alphabet) != set(token_list[0].alphabet):
                         raise ValueError("Kmer alphabets must match.")
-                    elif set(arg.complement) != set(first_arg[0].complement):
+                    elif set(x.complement) != set(token_list[0].complement):
                         raise ValueError("Kmer complement alphabets must match.")
 
                 obj = str.__new__(cls, content)
 
-                obj.k = first_arg[0].k
-                obj.alphabet = first_arg[0].alphabet
-                obj.complement = first_arg[0].complement
+                obj.k = token_list[0].k
+                obj.alphabet = token_list[0].alphabet
+                obj.complement = token_list[0].complement
 
             obj._sep = sep
             obj._kmers = KmerList(kmers)
@@ -534,7 +537,7 @@ class KmerCorpus(list):
             :param KmerCorpus.TokenSentence token_sent: KmerCorpus.TokenSentence object corresponding to a KmerList
             """
             if not isinstance(token_sent, KmerCorpus.TokenSentence):
-                raise ValueError("Argument must be of type KmerCorpus.TokenSentence.")
+                raise ValueError("Argument of type {} is not of type KmerCorpus.TokenSentence.".format(type(token_sent)))
 
             if len(self) == 0:
                 self.__init__(token)

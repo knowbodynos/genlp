@@ -168,7 +168,7 @@
 natural language processing</p>
 <dl class="class">
 <dt id="genoml.nlp.bedtools.BedTool.CorpusGen">
-<em class="property">class </em><code class="descname">CorpusGen</code><span class="sig-paren">(</span><em>bedtool</em>, <em>k</em>, <em>fasta=None</em>, <em>upstream=0</em>, <em>downstream=0</em>, <em>offset=1</em>, <em>sep=' '</em><span class="sig-paren">)</span><a class="headerlink" href="#genoml.nlp.bedtools.BedTool.CorpusGen" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descname">CorpusGen</code><span class="sig-paren">(</span><em>bedtool</em>, <em>k</em>, <em>fasta=None</em>, <em>upstream=0</em>, <em>downstream=0</em>, <em>offset=1</em>, <em>sep=' '</em>, <em>alphabet='atcg'</em>, <em>complement='tagc'</em>, <em>lower=True</em><span class="sig-paren">)</span><a class="headerlink" href="#genoml.nlp.bedtools.BedTool.CorpusGen" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Class to create a corpus object from a bedtool</p>
 <dl class="method">
@@ -180,7 +180,7 @@ natural language processing</p>
 
 <dl class="class">
 <dt id="genoml.nlp.bedtools.BedTool.TargetGen">
-<em class="property">class </em><code class="descname">TargetGen</code><span class="sig-paren">(</span><em>bedtool</em>, <em>expr_path</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#genoml.nlp.bedtools.BedTool.TargetGen" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descname">TargetGen</code><span class="sig-paren">(</span><em>bedtool</em>, <em>expr</em>, <em>sample_regex=None</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#genoml.nlp.bedtools.BedTool.TargetGen" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Class to create a corpus object from a bedtool and kmer model information</p>
 <dl class="method">
@@ -207,7 +207,7 @@ natural language processing</p>
 
 <dl class="method">
 <dt id="genoml.nlp.bedtools.BedTool.get_corpus">
-<code class="descname">get_corpus</code><span class="sig-paren">(</span><em>k</em>, <em>fasta=None</em>, <em>upstream=0</em>, <em>downstream=0</em>, <em>offset=1</em>, <em>sep=' '</em><span class="sig-paren">)</span><a class="headerlink" href="#genoml.nlp.bedtools.BedTool.get_corpus" title="Permalink to this definition">¶</a></dt>
+<code class="descname">get_corpus</code><span class="sig-paren">(</span><em>k</em>, <em>fasta=None</em>, <em>upstream=0</em>, <em>downstream=0</em>, <em>offset=1</em>, <em>sep=' '</em>, <em>lower=True</em><span class="sig-paren">)</span><a class="headerlink" href="#genoml.nlp.bedtools.BedTool.get_corpus" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get corpus object of kmer tokens</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -220,6 +220,7 @@ natural language processing</p>
 <li><strong>downstream</strong> (<em>int</em>) – number of bases downstream from each interval to read (<em>default: 0</em>)</li>
 <li><strong>offset</strong> (<em>int</em>) – shift offset between kmers in each interval (<em>default: 1</em>)</li>
 <li><strong>sep</strong> (<em>str</em>) – delimiter for token ‘words’</li>
+<li><strong>lower</strong> (<em>bool</em>) – makes all tokens lowercase</li>
 </ul>
 </td>
 </tr>
@@ -235,13 +236,13 @@ natural language processing</p>
 
 <dl class="method">
 <dt id="genoml.nlp.bedtools.BedTool.get_target">
-<code class="descname">get_target</code><span class="sig-paren">(</span><em>expr_path</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#genoml.nlp.bedtools.BedTool.get_target" title="Permalink to this definition">¶</a></dt>
+<code class="descname">get_target</code><span class="sig-paren">(</span><em>expr</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#genoml.nlp.bedtools.BedTool.get_target" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get expression level target object</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>expr_path</strong> (<em>str</em>) – path to normalized feature count table</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>expr</strong> (<em>str</em>) – path to normalized feature count table</td>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">BedTool.TargetGet object to process expression levels</td>
 </tr>
