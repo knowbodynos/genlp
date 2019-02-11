@@ -288,7 +288,7 @@ class BedTool(bt):
         return tokens
 
 
-    def get_corpus(self, k, fasta=None, upstream=0, downstream=0, offset=1, sep=''):
+    def get_corpus(self, k, fasta=None, upstream=0, downstream=0, offset=1, sep=' '):
         """
         Get corpus object of kmer tokens
         
@@ -301,7 +301,7 @@ class BedTool(bt):
         :return: BedTool.CorpusGen of kmer tokens
         :rtype: BedTool.CorpusGen
         """
-        return BedTool.CorpusGen(self, k, fasta=None, upstream=0, downstream=0, offset=1, sep=' ')
+        return BedTool.CorpusGen(self, k, fasta=fasta, upstream=upstream, downstream=downstream, offset=offset, sep=sep)
 
 
     def get_target(self, expr_path, **kwargs):
