@@ -8,6 +8,7 @@ from .kmers import Kmer, KmerList, KmerCorpus
 
 # Add numpy integer types to 
 integer_types = (*integer_types, numpy.int_)
+list_types = (list, tuple, set, iter, numpy.ndarray)
 
 
 class BedTool(bt):
@@ -103,6 +104,8 @@ class BedTool(bt):
         
         expr_dataframe = pandas.read_csv(self._expr, header=0, index_col=1)
 
+        if not isinstance(intervals, list_types):
+            intervals = [intervals]
         gene_ids = []
         for interval in intervals:
             if isinstance(interval, integer_types):
@@ -222,6 +225,8 @@ class BedTool(bt):
         :rtype: list
         """
         corpus = []
+        if not isinstance(intervals, list_types):
+            intervals = [intervals]
         for interval in intervals:
             tokens = self.read_tokens(interval, k, fasta=fasta,upstream=upstream,
                                                    downstream=downstream, offset=offset)
