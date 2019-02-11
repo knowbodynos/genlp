@@ -246,7 +246,7 @@ class BedTool(bt):
         assert(isinstance(chunksize, integer_types) and (chunksize > 0))
 
         
-        if not (isinstance(intervals, list_types) or hasattr(intervals, __getitem__):
+        if not (isinstance(intervals, list_types) or hasattr(intervals, __getitem__)):
             intervals = [intervals]
 
         def _get_token_sentence(interval):
