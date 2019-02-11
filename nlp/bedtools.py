@@ -5,11 +5,12 @@ from pybedtools import Interval, helpers, BedTool as bt
 from multiprocessing import Pool
 from io import TextIOWrapper
 from six import integer_types, string_types
+from collections.abc import Sequence, Iterator
 from .kmers import Kmer, KmerList, KmerCorpus
 
 # Add numpy integer types to 
 integer_types = (*integer_types, numpy.int_)
-list_types = (list, tuple, set, numpy.ndarray)
+list_types = (list, tuple, set, Sequence, Iterator, numpy.ndarray)
 
 
 class BedTool(bt):
@@ -60,7 +61,7 @@ class BedTool(bt):
                 if v is None:
                     new_locals[k] = self.__dict__[k]
 
-            if not (isinstance(intervals, list_types) or hasattr(intervals, '__next__')):
+            if not isinstance(intervals, list_types):
                 intervals = [intervals]
 
             corpus = []
@@ -106,7 +107,7 @@ class BedTool(bt):
             :return: array of differential expression targets from intervals
             :rtype: numpy.ndarray
             """
-            if not (isinstance(intervals, list_types) or hasattr(intervals, '__next__')):
+            if not isinstance(intervals, list_types):
                 intervals = [intervals]
 
             gene_ids = []
