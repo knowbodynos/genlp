@@ -60,7 +60,7 @@ class BedTool(bt):
                 if v is None:
                     new_locals[k] = self.__dict__[k]
 
-            if not (isinstance(intervals, list_types) or hasattr(intervals, __getitem__)):
+            if not (isinstance(intervals, list_types) or hasattr(intervals, '__getitem__')):
                 intervals = [intervals]
 
             tokens = self._bedtool.read_tokens(interval, self.k, fasta=new_locals['fasta'], 
@@ -104,7 +104,7 @@ class BedTool(bt):
             :return: array of differential expression targets from intervals
             :rtype: numpy.ndarray
             """
-            if not (isinstance(intervals, list_types) or hasattr(intervals, __getitem__)):
+            if not (isinstance(intervals, list_types) or hasattr(intervals, '__getitem__')):
                 intervals = [intervals]
 
             gene_ids = []
