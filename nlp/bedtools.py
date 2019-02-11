@@ -2,6 +2,7 @@ import os
 import numpy
 import pandas
 from pybedtools import Interval, helpers, BedTool as bt
+from multiprocessing import Pool
 from io import TextIOWrapper
 from six import integer_types, string_types
 from .kmers import Kmer, KmerList, KmerCorpus
@@ -84,16 +85,20 @@ class BedTool(bt):
         return feature_iter
 
 
-    def read_expression_levels(self, intervals, expr=None, sample_regex=None):
+    def read_expression_levels(self, intervals, expr=None, sample_regex=None, processes=1, chunksize=1):
         """
         Read expression levels for genes corresponding to all given intervals
 
         :param list intervals: list of interval indexes or pybedtools Interval objects
         :param str expr: path to normalized feature count table (*default: None*)
         :param str sample_regex: regex to filter by sample name (*default: None*)
+        :param int processes: number of worker processes to use
+        :param int chunksize: size of each chunk submitted to a worker process
         :return: mean expression level for gene corresponding to interval
         :rtype: numpy.ndarray
         """
+        assert(isinstance(processes, integer_types) and (processes > 0))
+        assert(isinstance(chunksize, integer_types) and (chunksize > 0))
         
         if expr is None:
             if self._expr is None:
@@ -106,8 +111,8 @@ class BedTool(bt):
 
         if not isinstance(intervals, list_types):
             intervals = [intervals]
-        gene_ids = []
-        for interval in intervals:
+
+        def _get_gene_id(interval):
             if isinstance(interval, integer_types):
                 interval = self.__getitem__(int(interval))
             elif not isinstance(interval, Interval):
@@ -115,7 +120,18 @@ class BedTool(bt):
             gene_id = interval.attrs['gene_id']
             if not gene_id in expr_dataframe.index:
                 gene_id = None
-            gene_ids.append(gene_id)
+            return gene_id
+
+        if processes > 1:
+            pool = Pool(processes=processes)
+            gene_ids = pool.map(_get_gene_id, intervals, chunksize)
+            gene_ids = [x for y in gene_ids for x in y]
+            pool.close()
+        else:
+            gene_ids = []
+            for interval in intervals:
+                gene_id = _get_gene_id(interval)
+                gene_ids.append(gene_id)
 
         start_sample_index = expr_dataframe.columns.tolist().index('Length') + 1
         expr_levels = expr_dataframe.reindex(gene_ids).iloc[:, start_sample_index:]
@@ -136,7 +152,6 @@ class BedTool(bt):
         :return: raw interval sequence from fasta file
         :rtype: string
         """
-            
         if fasta is None:
             if self._fasta is None:
                 raise ValueError("Argument 'fasta' must be set to a valid file path.")
@@ -210,7 +225,8 @@ class BedTool(bt):
         return tokens
 
 
-    def create_corpus(self, intervals, k, fasta=None, upstream=0, downstream=0, offset=1, sep=''):
+    def create_corpus(self, intervals, k, fasta=None, upstream=0, downstream=0, offset=1,
+                                          sep='', processes=1, chunksize=1):
         """
         Create corpus of kmer tokens from intervals
         
@@ -221,14 +237,32 @@ class BedTool(bt):
         :param int downstream: number of bases downstream from each interval to read (*default: 0*)
         :param int offset: shift offset between kmers in each interval (*default: 1*)
         :param str sep: delimiter for token 'words'
+        :param int processes: number of worker processes to use
+        :param int chunksize: size of each chunk submitted to a worker process
         :return: corpus of kmer tokens from intervals
         :rtype: list
         """
-        corpus = []
+        assert(isinstance(processes, integer_types) and (processes > 0))
+        assert(isinstance(chunksize, integer_types) and (chunksize > 0))
+
+        
         if not isinstance(intervals, list_types):
             intervals = [intervals]
-        for interval in intervals:
-            tokens = self.read_tokens(interval, k, fasta=fasta,upstream=upstream,
+
+        def _get_token_sentence(interval):
+            tokens = self.read_tokens(interval, k, fasta=fasta, upstream=upstream,
                                                    downstream=downstream, offset=offset)
-            corpus.append(KmerCorpus.TokenSentence(tokens, sep=sep))
+            return KmerCorpus.TokenSentence(tokens, sep=sep)
+
+        if processes > 1:
+            pool = Pool(processes=processes)
+            corpus = pool.map(_get_token_sentence, intervals, chunksize)
+            corpus = [x for y in corpus for x in y]
+            pool.close()
+        else:
+            corpus = []
+            for interval in intervals:
+                tokens = self.read_tokens(interval, k, fasta=fasta, upstream=upstream,
+                                                       downstream=downstream, offset=offset)
+                corpus.append(KmerCorpus.TokenSentence(tokens, sep=sep))
         return KmerCorpus(corpus)

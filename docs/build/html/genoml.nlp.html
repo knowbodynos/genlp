@@ -178,7 +178,7 @@ natural language processing</p>
 
 <dl class="method">
 <dt id="genoml.nlp.bedtools.BedTool.create_corpus">
-<code class="descname">create_corpus</code><span class="sig-paren">(</span><em>intervals</em>, <em>k</em>, <em>fasta=None</em>, <em>upstream=0</em>, <em>downstream=0</em>, <em>offset=1</em>, <em>sep=''</em><span class="sig-paren">)</span><a class="headerlink" href="#genoml.nlp.bedtools.BedTool.create_corpus" title="Permalink to this definition">¶</a></dt>
+<code class="descname">create_corpus</code><span class="sig-paren">(</span><em>intervals</em>, <em>k</em>, <em>fasta=None</em>, <em>upstream=0</em>, <em>downstream=0</em>, <em>offset=1</em>, <em>sep=''</em>, <em>processes=1</em>, <em>chunksize=1</em><span class="sig-paren">)</span><a class="headerlink" href="#genoml.nlp.bedtools.BedTool.create_corpus" title="Permalink to this definition">¶</a></dt>
 <dd><p>Create corpus of kmer tokens from intervals</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -192,6 +192,8 @@ natural language processing</p>
 <li><strong>downstream</strong> (<em>int</em>) – number of bases downstream from each interval to read (<em>default: 0</em>)</li>
 <li><strong>offset</strong> (<em>int</em>) – shift offset between kmers in each interval (<em>default: 1</em>)</li>
 <li><strong>sep</strong> (<em>str</em>) – delimiter for token ‘words’</li>
+<li><strong>processes</strong> (<em>int</em>) – number of worker processes to use</li>
+<li><strong>chunksize</strong> (<em>int</em>) – size of each chunk submitted to a worker process</li>
 </ul>
 </td>
 </tr>
@@ -207,7 +209,7 @@ natural language processing</p>
 
 <dl class="method">
 <dt id="genoml.nlp.bedtools.BedTool.read_expression_levels">
-<code class="descname">read_expression_levels</code><span class="sig-paren">(</span><em>intervals</em>, <em>expr=None</em>, <em>sample_regex=None</em><span class="sig-paren">)</span><a class="headerlink" href="#genoml.nlp.bedtools.BedTool.read_expression_levels" title="Permalink to this definition">¶</a></dt>
+<code class="descname">read_expression_levels</code><span class="sig-paren">(</span><em>intervals</em>, <em>expr=None</em>, <em>sample_regex=None</em>, <em>processes=1</em>, <em>chunksize=1</em><span class="sig-paren">)</span><a class="headerlink" href="#genoml.nlp.bedtools.BedTool.read_expression_levels" title="Permalink to this definition">¶</a></dt>
 <dd><p>Read expression levels for genes corresponding to all given intervals</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -217,6 +219,8 @@ natural language processing</p>
 <li><strong>intervals</strong> (<em>list</em>) – list of interval indexes or pybedtools Interval objects</li>
 <li><strong>expr</strong> (<em>str</em>) – path to normalized feature count table (<em>default: None</em>)</li>
 <li><strong>sample_regex</strong> (<em>str</em>) – regex to filter by sample name (<em>default: None</em>)</li>
+<li><strong>processes</strong> (<em>int</em>) – number of worker processes to use</li>
+<li><strong>chunksize</strong> (<em>int</em>) – size of each chunk submitted to a worker process</li>
 </ul>
 </td>
 </tr>
