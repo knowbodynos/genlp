@@ -17,6 +17,111 @@ class BedTool(bt):
     Class to wrap pybedtools.BedTool for use with machine learning and
     natural language processing
     """
+    class CorpusGen:
+        """
+        Class to create a corpus object from a bedtool
+        """
+        def __init__(self, bedtool, k, fasta=None, upstream=0, downstream=0, offset=1, sep=''):
+            """
+            Initialize corpus object of kmer tokens
+            
+            :param BedTool bedtool: bedtool object
+            :param int k: size of each kmer
+            :param str/io.TextIOWrapper fasta: path to fasta file or stream (*default: None*)
+            :param int upstream: number of bases upstream from each interval to read (*default: 0*)
+            :param int downstream: number of bases downstream from each interval to read (*default: 0*)
+            :param int offset: shift offset between kmers in each interval (*default: 1*)
+            :param str sep: delimiter for token 'words'
+            """
+            self._bedtool = bedtool
+            self.k = k
+            self.fasta = fasta
+            self.upstream = upstream
+            self.downstream = downstream
+            self.offset = offset
+            self.sep = sep
+
+
+        def __call__(self, intervals):
+            """
+            Return kmer tokens from intervals
+            
+            :param list intervals: list of interval indexes or pybedtools Interval objects
+            :return: corpus of kmer tokens from intervals
+            :rtype: list
+            """
+            if not (isinstance(intervals, list_types) or hasattr(intervals, __getitem__)):
+                intervals = [intervals]
+
+            tokens = self._bedtool.read_tokens(interval, self.k, fasta=self.fasta, upstream=self.upstream,
+                                                   downstream=self.downstream, offset=self.offset)
+            corpus = [KmerCorpus.TokenSentence(tokens, sep=self.sep)]
+            return KmerCorpus(corpus)
+
+
+        def get_bedtool(self):
+            return self._bedtool
+
+
+    class TargetGen:
+        """
+        Class to create a corpus object from a bedtool and kmer model information
+        """
+        def __init__(self, bedtool, expr_path, **kwargs):
+            """
+            Initialize target object from gene expression level dataframe
+
+            :param BedTool bedtool: bedtool object
+            :param str expr_path: path to normalized feature count table (*default: None*)
+            """
+            self._bedtool = bedtool
+            self.fn = expr_path
+            
+            if not os.path.isfile(expr_path):
+                raise ValueError("Argument 'expr_path' must be set to a valid file path.")
+            
+            self._expr_df = pandas.read_csv(self._expr, **kwargs)
+
+
+        def __call__(self, intervals, sample_regex=None):
+            """
+            Return differential expression target from intervals
+            
+            :param list intervals: list of interval indexes or pybedtools Interval objects
+            :param str sample_regex: regex to filter by sample name (*default: None*)
+            :return: array of differential expression targets from intervals
+            :rtype: numpy.ndarray
+            """
+            if not (isinstance(intervals, list_types) or hasattr(intervals, __getitem__)):
+                intervals = [intervals]
+
+            gene_ids = []
+            for interval in intervals:
+                if isinstance(interval, integer_types):
+                    interval = self.__getitem__(int(interval))
+                elif not isinstance(interval, Interval):
+                    raise ValueError("Argument 'intervals' must be a list or numpy array of indexes or Interval objects.")
+                gene_id = interval.attrs['gene_id']
+                if not gene_id in self._expr_df.index:
+                    gene_id = None
+                gene_ids.append(gene_id)
+
+            start_sample_index = self._expr_df.columns.tolist().index('Length') + 1
+            expr_levels = self._expr_df.reindex(gene_ids).iloc[:, start_sample_index:]
+            if not sample_regex is None:
+                expr_levels = expr_levels.filter(regex=sample_regex)
+            mean_expr_levels = expr_levels.mean(axis=1).values
+            return mean_expr_levels
+
+
+        def get_bedtool(self):
+            return self._bedtool
+
+
+        def to_dataframe(self):
+            return self._expr_df
+
+
     _fasta = None
     _expr = None
     alphabet = None
@@ -83,62 +188,6 @@ class BedTool(bt):
         """
         feature_iter = BedTool(self.filter(lambda x: x[2] == feature_type))
         return feature_iter
-
-
-    def read_expression_levels(self, intervals, expr=None, sample_regex=None, processes=1, chunksize=1):
-        """
-        Read expression levels for genes corresponding to all given intervals
-
-        :param list intervals: list of interval indexes or pybedtools Interval objects
-        :param str expr: path to normalized feature count table (*default: None*)
-        :param str sample_regex: regex to filter by sample name (*default: None*)
-        :param int processes: number of worker processes to use
-        :param int chunksize: size of each chunk submitted to a worker process
-        :return: mean expression level for gene corresponding to interval
-        :rtype: numpy.ndarray
-        """
-        assert(isinstance(processes, integer_types) and (processes > 0))
-        assert(isinstance(chunksize, integer_types) and (chunksize > 0))
-        
-        if expr is None:
-            if self._expr is None:
-                raise ValueError("Argument 'expr' must be set to a valid file path.")
-        else:
-            if isinstance(expr, string_types) and os.path.isfile(expr):
-                self._expr = expr
-        
-        expr_dataframe = pandas.read_csv(self._expr, header=0, index_col=1)
-
-        if not (isinstance(intervals, list_types) or hasattr(intervals, __getitem__)):
-            intervals = [intervals]
-
-        def _get_gene_id(interval):
-            if isinstance(interval, integer_types):
-                interval = self.__getitem__(int(interval))
-            elif not isinstance(interval, Interval):
-                raise ValueError("Argument 'intervals' must be a list or numpy array of indexes or Interval objects.")
-            gene_id = interval.attrs['gene_id']
-            if not gene_id in expr_dataframe.index:
-                gene_id = None
-            return gene_id
-
-        if processes > 1:
-            pool = Pool(processes=processes)
-            gene_ids = pool.map(_get_gene_id, intervals, chunksize)
-            gene_ids = [x for y in gene_ids for x in y]
-            pool.close()
-        else:
-            gene_ids = []
-            for interval in intervals:
-                gene_id = _get_gene_id(interval)
-                gene_ids.append(gene_id)
-
-        start_sample_index = expr_dataframe.columns.tolist().index('Length') + 1
-        expr_levels = expr_dataframe.reindex(gene_ids).iloc[:, start_sample_index:]
-        if not sample_regex is None:
-            expr_levels = expr_levels.filter(regex=sample_regex)
-        mean_expr_levels = expr_levels.mean(axis=1).values
-        return mean_expr_levels
 
     
     def read_seq(self, interval, fasta=None, upstream=0, downstream=0):
@@ -225,44 +274,28 @@ class BedTool(bt):
         return tokens
 
 
-    def create_corpus(self, intervals, k, fasta=None, upstream=0, downstream=0, offset=1,
-                                          sep='', processes=1, chunksize=1):
+    def get_corpus(self, k, fasta=None, upstream=0, downstream=0, offset=1, sep=''):
         """
-        Create corpus of kmer tokens from intervals
+        Get corpus object of kmer tokens
         
-        :param list intervals: list of interval indexes or pybedtools Interval objects
         :param int k: size of each kmer
         :param str/io.TextIOWrapper fasta: path to fasta file or stream (*default: None*)
         :param int upstream: number of bases upstream from each interval to read (*default: 0*)
         :param int downstream: number of bases downstream from each interval to read (*default: 0*)
         :param int offset: shift offset between kmers in each interval (*default: 1*)
         :param str sep: delimiter for token 'words'
-        :param int processes: number of worker processes to use
-        :param int chunksize: size of each chunk submitted to a worker process
-        :return: corpus of kmer tokens from intervals
-        :rtype: list
+        :return: BedTool.CorpusGen of kmer tokens
+        :rtype: BedTool.CorpusGen
         """
-        assert(isinstance(processes, integer_types) and (processes > 0))
-        assert(isinstance(chunksize, integer_types) and (chunksize > 0))
+        return BedTool.CorpusGen(self, k, fasta=None, upstream=0, downstream=0, offset=1, sep='')
 
-        
-        if not (isinstance(intervals, list_types) or hasattr(intervals, __getitem__)):
-            intervals = [intervals]
 
-        def _get_token_sentence(interval):
-            tokens = self.read_tokens(interval, k, fasta=fasta, upstream=upstream,
-                                                   downstream=downstream, offset=offset)
-            return KmerCorpus.TokenSentence(tokens, sep=sep)
+    def get_target(self, expr_path, **kwargs):
+        """
+        Get expression level target object
 
-        if processes > 1:
-            pool = Pool(processes=processes)
-            corpus = pool.map(_get_token_sentence, intervals, chunksize)
-            corpus = [x for y in corpus for x in y]
-            pool.close()
-        else:
-            corpus = []
-            for interval in intervals:
-                tokens = self.read_tokens(interval, k, fasta=fasta, upstream=upstream,
-                                                       downstream=downstream, offset=offset)
-                corpus.append(KmerCorpus.TokenSentence(tokens, sep=sep))
-        return KmerCorpus(corpus)
+        :param str expr_path: path to normalized feature count table
+        :return: BedTool.TargetGet object to process expression levels
+        :rtype: BedTool.TargetGet
+        """
+        return BedTool.TargetGen(self, expr_path, **kwargs)

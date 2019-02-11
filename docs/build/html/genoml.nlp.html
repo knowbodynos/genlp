@@ -166,6 +166,35 @@
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">pybedtools.bedtool.BedTool</span></code></p>
 <p>Class to wrap pybedtools.BedTool for use with machine learning and
 natural language processing</p>
+<dl class="class">
+<dt id="genoml.nlp.bedtools.BedTool.CorpusGen">
+<em class="property">class </em><code class="descname">CorpusGen</code><span class="sig-paren">(</span><em>bedtool</em>, <em>k</em>, <em>fasta=None</em>, <em>upstream=0</em>, <em>downstream=0</em>, <em>offset=1</em>, <em>sep=''</em><span class="sig-paren">)</span><a class="headerlink" href="#genoml.nlp.bedtools.BedTool.CorpusGen" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Class to create a corpus object from a bedtool</p>
+<dl class="method">
+<dt id="genoml.nlp.bedtools.BedTool.CorpusGen.get_bedtool">
+<code class="descname">get_bedtool</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#genoml.nlp.bedtools.BedTool.CorpusGen.get_bedtool" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="genoml.nlp.bedtools.BedTool.TargetGen">
+<em class="property">class </em><code class="descname">TargetGen</code><span class="sig-paren">(</span><em>bedtool</em>, <em>expr_path</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#genoml.nlp.bedtools.BedTool.TargetGen" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Class to create a corpus object from a bedtool and kmer model information</p>
+<dl class="method">
+<dt id="genoml.nlp.bedtools.BedTool.TargetGen.get_bedtool">
+<code class="descname">get_bedtool</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#genoml.nlp.bedtools.BedTool.TargetGen.get_bedtool" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="genoml.nlp.bedtools.BedTool.TargetGen.to_dataframe">
+<code class="descname">to_dataframe</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#genoml.nlp.bedtools.BedTool.TargetGen.to_dataframe" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
 <dl class="attribute">
 <dt id="genoml.nlp.bedtools.BedTool.alphabet">
 <code class="descname">alphabet</code><em class="property"> = None</em><a class="headerlink" href="#genoml.nlp.bedtools.BedTool.alphabet" title="Permalink to this definition">¶</a></dt>
@@ -177,30 +206,27 @@ natural language processing</p>
 <dd></dd></dl>
 
 <dl class="method">
-<dt id="genoml.nlp.bedtools.BedTool.create_corpus">
-<code class="descname">create_corpus</code><span class="sig-paren">(</span><em>intervals</em>, <em>k</em>, <em>fasta=None</em>, <em>upstream=0</em>, <em>downstream=0</em>, <em>offset=1</em>, <em>sep=''</em>, <em>processes=1</em>, <em>chunksize=1</em><span class="sig-paren">)</span><a class="headerlink" href="#genoml.nlp.bedtools.BedTool.create_corpus" title="Permalink to this definition">¶</a></dt>
-<dd><p>Create corpus of kmer tokens from intervals</p>
+<dt id="genoml.nlp.bedtools.BedTool.get_corpus">
+<code class="descname">get_corpus</code><span class="sig-paren">(</span><em>k</em>, <em>fasta=None</em>, <em>upstream=0</em>, <em>downstream=0</em>, <em>offset=1</em>, <em>sep=''</em><span class="sig-paren">)</span><a class="headerlink" href="#genoml.nlp.bedtools.BedTool.get_corpus" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get corpus object of kmer tokens</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>intervals</strong> (<em>list</em>) – list of interval indexes or pybedtools Interval objects</li>
 <li><strong>k</strong> (<em>int</em>) – size of each kmer</li>
 <li><strong>fasta</strong> (<em>str/io.TextIOWrapper</em>) – path to fasta file or stream (<em>default: None</em>)</li>
 <li><strong>upstream</strong> (<em>int</em>) – number of bases upstream from each interval to read (<em>default: 0</em>)</li>
 <li><strong>downstream</strong> (<em>int</em>) – number of bases downstream from each interval to read (<em>default: 0</em>)</li>
 <li><strong>offset</strong> (<em>int</em>) – shift offset between kmers in each interval (<em>default: 1</em>)</li>
 <li><strong>sep</strong> (<em>str</em>) – delimiter for token ‘words’</li>
-<li><strong>processes</strong> (<em>int</em>) – number of worker processes to use</li>
-<li><strong>chunksize</strong> (<em>int</em>) – size of each chunk submitted to a worker process</li>
 </ul>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">corpus of kmer tokens from intervals</p>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">BedTool.CorpusGen of kmer tokens</p>
 </td>
 </tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">list</p>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last"><a class="reference internal" href="#genoml.nlp.bedtools.BedTool.CorpusGen" title="genoml.nlp.bedtools.BedTool.CorpusGen">BedTool.CorpusGen</a></p>
 </td>
 </tr>
 </tbody>
@@ -208,27 +234,18 @@ natural language processing</p>
 </dd></dl>
 
 <dl class="method">
-<dt id="genoml.nlp.bedtools.BedTool.read_expression_levels">
-<code class="descname">read_expression_levels</code><span class="sig-paren">(</span><em>intervals</em>, <em>expr=None</em>, <em>sample_regex=None</em>, <em>processes=1</em>, <em>chunksize=1</em><span class="sig-paren">)</span><a class="headerlink" href="#genoml.nlp.bedtools.BedTool.read_expression_levels" title="Permalink to this definition">¶</a></dt>
-<dd><p>Read expression levels for genes corresponding to all given intervals</p>
+<dt id="genoml.nlp.bedtools.BedTool.get_target">
+<code class="descname">get_target</code><span class="sig-paren">(</span><em>expr_path</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#genoml.nlp.bedtools.BedTool.get_target" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get expression level target object</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>intervals</strong> (<em>list</em>) – list of interval indexes or pybedtools Interval objects</li>
-<li><strong>expr</strong> (<em>str</em>) – path to normalized feature count table (<em>default: None</em>)</li>
-<li><strong>sample_regex</strong> (<em>str</em>) – regex to filter by sample name (<em>default: None</em>)</li>
-<li><strong>processes</strong> (<em>int</em>) – number of worker processes to use</li>
-<li><strong>chunksize</strong> (<em>int</em>) – size of each chunk submitted to a worker process</li>
-</ul>
-</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>expr_path</strong> (<em>str</em>) – path to normalized feature count table</td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">mean expression level for gene corresponding to interval</p>
-</td>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">BedTool.TargetGet object to process expression levels</td>
 </tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">numpy.ndarray</p>
-</td>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">BedTool.TargetGet</td>
 </tr>
 </tbody>
 </table>
