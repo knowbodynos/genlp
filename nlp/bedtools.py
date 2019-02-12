@@ -276,8 +276,18 @@ class BedTool(bt):
         :return: list of kmer tokens in interval
         :rtype: list
         """
-        kmers = self.read_kmers(interval, k, fasta=fasta, upstream=upstream, downstream=downstream, offset=offset)
-        return [x.token() for x in kmers]
+        if isinstance(interval, integer_types):
+            interval = self.__getitem__(int(interval))
+        elif not isinstance(interval, Interval):
+            raise ValueError("Argument {} must be an index or Interval object.".format(type(interval)))
+
+        sequence = self.read_seq(interval, fasta=fasta, upstream=upstream, downstream=downstream)
+        tokens = []
+        for i in range(0, len(sequence) - k + 1, offset):
+            position = (interval.chrom, interval.start - upstream + i)
+            kmer = Kmer(sequence[i:i + k], pos=position, alphabet=self.alphabet, complement=self.complement)
+            tokens.append(kmer.token())
+        return tokens
 
 
     def get_corpus(self, k, fasta=None, upstream=0, downstream=0, offset=1, delim=' '):
