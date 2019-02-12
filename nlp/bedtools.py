@@ -54,34 +54,21 @@ class BedTool(bt):
             self.complement = complement
 
 
-        def __call__(self, intervals, fasta=None, upstream=None, downstream=None, offset=None, delim=None):
+        def __call__(self, *intervals):
             """
             Return kmer tokens from intervals
             
             :param list intervals: list of interval indexes or pybedtools Interval objects
-            :param str fasta: path to fasta file or stream (*default: None*)
-            :param int upstream: number of bases upstream from each interval to read (*default: None*)
-            :param int downstream: number of bases downstream from each interval to read (*default: None*)
-            :param int offset: shift offset between kmers in each interval (*default: None*)
-            :param str delim: delimiter for token 'words'
             :return: corpus of kmer tokens from intervals
             :rtype: list
             """
-            new_locals = locals()
-            for k, v in new_locals.items():
-                if v is None:
-                    new_locals[k] = self.__dict__[k]
-
-            if not isinstance(intervals, list_types):
-                intervals = [intervals]
-
             corpus = []
             for interval in intervals:
-                tokens = self._bedtool.read_tokens(interval, self.k, fasta=new_locals['fasta'], 
-                                                                     upstream=new_locals['upstream'],
-                                                                     downstream=new_locals['downstream'],
-                                                                     offset=new_locals['offset'])
-                corpus.append(new_locals['delim'].join(tokens))
+                tokens = self._bedtool.read_tokens(interval, self.k, fasta=self.fasta, 
+                                                                     upstream=self.upstream,
+                                                                     downstream=self.downstream,
+                                                                     offset=self.offset)
+                corpus.append(self.delim.join(tokens))
             return corpus
 
 
@@ -109,7 +96,7 @@ class BedTool(bt):
             self._expr_df = pandas.read_csv(expr, **kwargs)
 
 
-        def __call__(self, intervals):
+        def __call__(self, *intervals):
             """
             Return differential expression target from intervals
             
@@ -117,9 +104,6 @@ class BedTool(bt):
             :return: array of differential expression targets from intervals
             :rtype: numpy.ndarray
             """
-            if not isinstance(intervals, list_types):
-                intervals = [intervals]
-
             gene_ids = []
             for interval in intervals:
                 if isinstance(interval, integer_types):
@@ -218,21 +202,11 @@ class BedTool(bt):
         :return: raw interval sequence from fasta file
         :rtype: string
         """
-        if fasta is None:
-            if self._fasta is None:
-                raise ValueError("Argument '{}' must be a valid file path.".format(fasta))
-        else:
-            if (isinstance(fasta, string_types) and os.path.isfile(fasta)) or \
-               (isinstance(fasta, TextIOWrapper)):
-                self._fasta = fasta
-        
         if isinstance(interval, integer_types):
             interval = self.__getitem__(int(interval))
         elif not isinstance(interval, Interval):
             raise ValueError("Argument of type {} must be an index or Interval object.".format(type(interval)))
-        
-        sequence = self.seq((interval.chrom, interval.start - upstream, interval.end + downstream), self._fasta)
-        return sequence
+        return self.seq((interval.chrom, interval.start - upstream, interval.end + downstream), fasta)#self._fasta)
     
     
     def read_kmers(self, interval, k, fasta=None, upstream=0, downstream=0, offset=1):
@@ -259,8 +233,7 @@ class BedTool(bt):
             position = (interval.chrom, interval.start - upstream + i)
             kmer = Kmer(sequence[i:i + k], pos=position, alphabet=self.alphabet, complement=self.complement)
             kmers.append(kmer)
-        kmers = KmerList(kmers)
-        return kmers
+        return KmerList(kmers)
     
     
     def read_tokens(self, interval, k, fasta=None, upstream=0, downstream=0, offset=1):
