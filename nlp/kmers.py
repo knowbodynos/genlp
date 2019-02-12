@@ -1,187 +1,70 @@
 from itertools import product
+from six import integer_types
 from math import log
-from copy import deepcopy
 
-
-class Kmer(str):
+class Kmer:
     """
     Class to manager kmer objects
+
+    :param str kmer: kmer string (*default: ''*)
+    :param tuple pos: position of kmer in genome (*default: None*)
+    :param str alphabet: allowed alphabet for kmer (*default: 'atcg'*)
+    :param str complement: complement to alphabet (*default: 'tagc'*)
+    :param str sep: spacer between characters in kmer (*default: ''*)
     """
-    class Token(str):
-        """
-        Kmer subclass to manage kmer tokens
-        """
-        k = None
-        pos = None
-        alphabet = None
-        complement = None
-        _kmer = None
-        def __new__(cls, kmer, *args, pos=None, alphabet='atcg', complement='tagc', sep='', **kwargs):
-            """
-            Create new Kmer.Token object extending str
-
-            :param Kmer kmer: kmer that token represents
-            :param tuple/list pos: position of kmer in genome (*default: None*)
-            :param str alphabet: allowed alphabet for kmer (*default: 'atcg'*)
-            :param str complement: complement to alphabet (*default: 'tagc'*)
-            :param str sep: delimiter if kmer is given as list 
-            :return: new Kmer.Token object
-            :rtype: Kmer.Token
-            """
-            if len(args) > 1:
-                content = sep.join(args)
-            elif isinstance(args, (list, tuple)):
-                content = sep.join(*args)
-            else:
-                content = args[0]
-
-            obj = str.__new__(cls, content)
-            obj.k = len(kmer)
-            obj.pos = pos
-            obj.alphabet = alphabet
-            obj.complement = complement
-            obj._kmer = kmer
-            return obj
-
-
-        def to_kmer(self):
-            """
-            Convert token into its original kmer
-
-            :return: token
-            :rtype: string
-            """
-            return Kmer(self._kmer)
-
-
-        def entropy(self, sig=2):
-            """
-            Compute Shannon entropy for a given kmer corresponding to a token
-
-            :param int sig: significant digits after decimal (*default: 2*)
-            :return: Shannon entropy of kmer corresponding to a token
-            :rtype: float
-            """
-            kmer = self.to_kmer()
-            prob = [float(kmer.count(c)) / len(kmer) for c in dict.fromkeys(list(kmer))]
-            entropy = - sum([p * log(p) / log(2.0) for p in prob])
-            return round(entropy, sig)
-
-
-    k = None
-    alphabet = None
-    complement = None
-    sep=None
-    pos = None
-    _token = None
-    def __new__(cls, *args, sep='', pos=None, alphabet='atcg', complement='tagc', lower=True, **kwargs):
-        """
-        Create new Kmer object extending str
-
-        :param str sep: delimiter if kmer is given as list (*default: ''*)
-        :param tuple/list pos: position of kmer in genome (*default: None*)
-        :param str alphabet: allowed alphabet for kmer (*default: 'atcg'*)
-        :param str complement: complement to alphabet (*default: 'tagc'*)
-        :param boolean lower: force kmer to be lowercase (*default: True*)
-        :return: new Kmer object
-        :rtype: Kmer
-        """
-        if len(args) > 1:
-            content = sep.join(args)
-        elif isinstance(args, (list, tuple)):
-            content = sep.join(*args)
-        else:
-            content = args[0]
-
-        if lower:
-            if alphabet != alphabet.lower():
-                raise ValueError("For lower=True, Kmer alphabet must be lowercase.")
-            if complement != complement.lower():
-                raise ValueError("For lower=True, Kmer complement alphabet must be lowercase.")
-            content = content.lower()
-        
-        obj = str.__new__(cls, content)
-        if not set(obj).issubset(set(alphabet)):
-            raise ValueError("Character(s) {} in Kmer object are limited to alphabet provided (default: 'atcg').".format(list(set(obj).difference(set(alphabet)))))
-        if set(complement) != set(alphabet):
-            raise ValueError("Complement alphabet must be a permutation of alphabet.") 
-        obj.k = len(obj)
-        obj.alphabet = alphabet
-        obj.complement = complement
-        obj.sep = sep
-        obj.pos = pos
-        obj._token = None
-        return obj
-
-
-    def set_alphabet(self, alphabet):
-        """
-        Set a new alphabet
-
-        :param str alphabet: allowed alphabet for kmer
-        """
-        if not set(self).issubset(set(alphabet)):
-            raise ValueError("Kmer characters must be a subset of its alphabet.")
+    def __init__(self, kmer='', pos=None, alphabet='atcg', complement='tagc', sep=''):
+        self._kmer = kmer
+        self.pos = pos
+        self.k = len(kmer)
         self.alphabet = alphabet
-
-
-    def set_complement(self, complement):
-        """
-        Set a new complement alphabet
-
-        :param str complement: complement to alphabet
-        """
-        if not set(self).issubset(set(complement)):
-            raise ValueError("Kmer characters must be a subset of its complement alphabet.")
         self.complement = complement
-    
-    
-    def lower(self):
-        """
-        Convert kmer to all lowercase
+        self.sep = sep
 
-        :return: kmer in all lowercase
+
+    def __getitem__(self, val):
+        i = (len(self.sep) + 1) * val
+        return self._kmer[i]
+
+
+    def __str__(self):
+        return self._kmer
+
+
+    def __repr__(self):
+        return "<Kmer {}>".format(self.__str__())
+
+
+    def __len__(self):
+        return self.k
+
+
+    def reverse_complement(self):
+        """
+        Return the reverse complement of a kmer
+
+        :return: reverse complement sequence
         :rtype: Kmer
         """
-        if not set(str(self).lower()).issubset(set(self.alphabet)):
-            raise ValueError("Lowercase characters must be a subset of Kmer alphabet.")
-        kmer_lower = Kmer(str(self).lower(), alphabet=self.alphabet, complement=self.complement, lower=True)
-        return kmer_lower
+        args = {k: self.__dict__[k] for k in ['alphabet', 'complement', 'sep']}
+        args['kmer'] = self._kmer
+        args['pos'] = self.pos
+        alphabet = self.alphabet.lower() + self.alphabet.upper()
+        complement = self.complement.lower() + self.complement.upper()
+        args['kmer'] = self._kmer.translate(str.maketrans(alphabet, complement))[::-1]
+        return Kmer(**args)
 
 
-    def upper(self):
+    def token(self, sep='|'):
         """
-        Convert kmer to all uppercase
+        Create token from kmer
 
-        :return: kmer in all uppercase
-        :rtype: Kmer
+        :param str sep: separator for forward and reverse complement kmer sequences in token
+        :return: token corresponding to kmer
+        :rtype: str
         """
-        if not set(str(self).upper()).issubset(set(self.alphabet)):
-            raise ValueError("Uppercase characters must be a subset of Kmer alphabet.")
-        kmer_upper = Kmer(str(self).upper(), alphabet=self.alphabet, complement=self.complement, lower=False)
-        return kmer_upper
+        return sep.join(sorted([self._kmer, self.reverse_complement()._kmer])).lower()
 
 
-    def to_token(self, complement=None):
-        """
-        Convert kmer into token
-
-        :param str complement: complement of Kmer alphabet (*default: None*)
-        :return: token corresponding to a kmer
-        :rtype: string
-        """
-        if complement is None:
-            complement = self.complement
-            if self._token is None:
-                kmer = self.lower()
-                rev_comp_kmer = self.translate(str.maketrans(self.alphabet, complement))[::-1]
-                self._token = Kmer.Token(kmer, "|".join(sorted([self, rev_comp_kmer])), pos=self.pos, alphabet=self.alphabet, complement=self.complement)
-        else:
-            if set(complement) != set(self.alphabet):
-                raise ValueError("Complement alphabet must be a permutation of alphabet.")
-        return self._token
-
-    
     def entropy(self, sig=2):
         """
         Compute Shannon entropy for a given kmer
@@ -190,496 +73,229 @@ class Kmer(str):
         :return: Shannon entropy of kmer
         :rtype: float
         """
-        prob = [float(self.count(c)) / len(self) for c in dict.fromkeys(list(self))]
+        prob = [float(self._kmer.count(c)) / len(self) for c in dict.fromkeys(list(self._kmer))]
         entropy = - sum([p * log(p) / log(2.0) for p in prob])
         return round(entropy, sig)
 
 
-class KmerList(list):
+class KmerList:
     """
-    Class to manage lists of kmers
+    Class to manage lists of kmer tokens
+
+    :param list kmers: list of kmers (*default: []*)
     """
-    class TokenList(list):
-        """
-        Class to manage lists of kmer tokens 
-        """
-        def __init__(self, *args, **kwargs):
-            """
-            Create new KmerList.TokenList object extending list
-
-            :return: new KmerList.TokenList object
-            :rtype: KmerList.TokenList
-            """
-            list.__init__(self, *args, **kwargs)
-            if len(self) == 0:
-                self.k = None
-                self.alphabet = None
-                self.complement = None
-            else:
-                for i in range(len(self)):
-                    arg = self[i]
-                    if isinstance(arg, Kmer):
-                        self[i] = arg.to_token()
-                    elif isinstance(arg, Kmer.Token):
-                        pass
-                    else:
-                        raise ValueError("Argument of type {} is not a list, KmerList, or KmerList.TokenList type.".format(type(arg)))
-
-                    if arg.k != self[0].k:
-                        raise ValueError("Kmer sizes must match.")
-                    elif set(arg.alphabet) != set(self[0].alphabet):
-                        raise ValueError("Kmer alphabets must match.")
-                    elif set(arg.complement) != set(self[0].complement):
-                        raise ValueError("Kmer complement alphabets must match.")
-
-                self.k = self[0].k
-                self.alphabet = self[0].alphabet
-                self.complement = self[0].complement
-
-
-        def append(self, token):
-            """
-            Append new Kmer.Token to KmerList.TokenList
-
-            :param Kmer.Token token: token corresponding to a kmer
-            """
-            if len(self) == 0:
-                self.__init__([token])
-                self.k = token.k
-                self.alphabet = token.alphabet
-                self.complement = token.complement
-            else:
-                if self.k != token.k:
-                    raise ValueError("Kmer size of Kmer.Token must match that of TokenList.")
-                elif set(self.alphabet) != set(token.alphabet):
-                    raise ValueError("Alphabet of Kmer.Token must match that of TokenList.")
-                elif set(self.complement) != set(token.complement):
-                    raise ValueError("Complement alphabet of Kmer.Token must match that of TokenList.")
-                new_tokens = list(self)
-                new_tokens.append(token)
-                self.__init__(new_tokens)
-
-
-        def extend(self, tokens):
-            """
-            Extend KmerList.TokenList with another KmerList.TokenList
-
-            :param KmerList.TokenList tokens: tokens corresponding to kmers
-            """
-            if len(self) == 0:
-                self.__init__(tokens)
-                self.k = tokens.k
-                self.alphabet = tokens.alphabet
-                self.complement = tokens.complement
-            else:
-                if self.k != tokens.k:
-                    raise ValueError("Kmer size of Kmer.Token must match that of TokenList.")
-                elif set(self.alphabet) != set(tokens.alphabet):
-                    raise ValueError("Alphabet of Kmer.Token must match that of TokenList.")
-                elif set(self.complement) != set(tokens.complement):
-                    raise ValueError("Complement alphabet of Kmer.Token must match that of TokenList.")
-                new_tokens = list(self)
-                new_tokens.extend(tokens)
-                self.__init__(new_tokens)
-
-
-        def to_kmers(self):
-            """
-            Convert tokens into their original kmers
-
-            :return: kmers
-            :rtype: KmerList
-            """
-            kmers = KmerList([x.to_kmer() for x in self])
-            return kmers
-
-
-        def all_tokens(self):
-            """
-            List all possible unique tokens
-
-            :return: list of all sorted unique tokens
-            :rtype: KmerList.TokenList
-            """
-            token_set = set() 
-            all_kmers = self.to_kmers().all_kmers()
-            for kmer in all_kmers:
-                token = kmer.to_token()
-                token_set.add(token)
-            uniq_tokens = KmerList.TokenList(sorted(list(token_set))) 
-            return uniq_tokens
-
-
-        def entropy_stopwords(self, sig=2, entropy_threshold=1.3):
-            """
-            Generate set of stopwords according to Shannon entropy
-
-            :param int sig: Shannon entropy upper bound for stopwords (*default: 2*)
-            :param float entropy_threshold: Shannon entropy upper bound for stopwords (*default: 1.3*)
-            :return: list of sorted low-complexity tokens
-            :rtype: KmerList.TokenList
-            """
-            stopword_set = set()
-            for token in self.all_tokens():
-                if token.entropy(sig=sig) < entropy_threshold:
-                    stopword_set.add(token)
-                else:
-                    continue
-            stopwords = KmerList.TokenList(sorted(list(stopword_set)))
-            return stopwords
-
-    
-    def __init__(self, arg, k=None, alphabet=None, complement=None, lower=True, **kwargs):
-        """
-        Create new KmerList object extending list
-
-        :param int k: size of each kmer (*default: None*)
-        :param str alphabet: allowed alphabet for kmer (*default: None*)
-        :param str complement: complement to alphabet (*default: None*)
-        :param boolean lower: force kmer to be lowercase (*default: None*)
-        :return: new KmerList object
-        :rtype: KmerList
-        """
-        if lower:
-            content = [x.lower() for x in arg]
+    def __init__(self, kmers=[]):
+        self.pos = []
+        self._kmers = []
+        if (len(kmers) == 0) or (not isinstance(kmers[0], Kmer)):
+            kmer_vars = vars(Kmer())
         else:
-            content = arg
-        
-        list.__init__(self, content)
+            kmer_vars = vars(kmers[0])
+        for kmer in kmers:
+            if not isinstance(kmer, Kmer):
+                kmer = Kmer(kmer)
+            for k, v in vars(kmer).items():
+                if k == '_kmer':
+                    self._kmers.append(v)
+                elif k == 'pos':
+                    self.pos.append(v)
+                elif (k == 'k') and (kmer_vars[k] == 0):
+                    self.k = v
+                elif v != kmer_vars[k]:
+                    raise ValueError("All kmers in list must have the same attributes (attr '{}': {} != {}).".format(k, v, kmer_vars[k]))
+        for k, v in kmer_vars.items():
+            if not k in ['_kmer', 'pos']:
+                self.__dict__[k] = v
 
-        if (k is None) or (alphabet is None) or (complement is None):
-            if len(self) == 0:
-                raise ValueError("Kmer alphabet and complement alphabet must be specified.")
-            else:
-                for x in self[1:]:
-                    if x.k != self[0].k:
-                        raise ValueError("Kmer sizes must match.")
-                    elif set(x.alphabet) != set(self[0].alphabet):
-                        raise ValueError("Kmer alphabets must match.")
-                    elif set(x.complement) != set(self[0].complement):
-                        raise ValueError("Kmer complement alphabets must match.")
 
-                self.k = self[0].k
-                self.alphabet = self[0].alphabet
-                self.complement = self[0].complement
-        else:
-            if set(complement) != set(alphabet):
-                raise ValueError("Complement alphabet must be a permutation of alphabet.") 
-            self.k = k
-            self.alphabet = alphabet
-            self.complement = complement
-        self._tokens = None
+    def __str__(self):
+        tokens = []
+        for i in range(len(self._kmers)):
+            token = self.__getitem__(i).token()
+            tokens.append(token)
+        return str(tokens)
+
+
+    def __repr__(self):
+        return "<KmerList {}>".format(self.__str__())
+
+
+    def __len__(self):
+        return len(self._kmers)
+
+
+    def __getitem__(self, val):
+        args = {k: self.__dict__[k] for k in ['alphabet', 'complement', 'sep']}
+        args['kmer'] = self._kmers[val]
+        args['pos'] = self.pos[val]
+        return Kmer(**args)
+
+
+    def __add__(self, kmer_list):
+        new_kmer_list = self.extend(kmer_list)
+        return new_kmer_list
+
+
+    def __iadd__(self, kmer_list):
+        new_kmer_list = self.extend(kmer_list)
+        self.__dict__.update(new_kmer_list.__dict__)
+        return self
 
 
     def append(self, kmer):
-            """
-            Append new Kmer to KmerList
-
-            :param Kmer kmer: kmer
-            """
-            if len(self) == 0:
-                self.__init__([token])
-            else:
-                if self.k != kmer.k:
-                    raise ValueError("Kmer size of Kmer.Token must match that of TokenList.")
-                elif set(self.alphabet) != set(kmer.alphabet):
-                    raise ValueError("Alphabet of Kmer.Token must match that of TokenList.")
-                elif set(self.complement) != set(kmer.complement):
-                    raise ValueError("Complement alphabet of Kmer.Token must match that of TokenList.")
-                new_kmers = list(self)
-                new_kmers.append(kmer)
-                self.__init__(new_kmers)
-
-
-    def extend(self, kmers):
-            """
-            Extend KmerList with another KmerList
-
-            :param Kmer kmer: kmer
-            """
-            for kmer in kmers:
-                self.append(kmer)
-    
-    
-    def to_tokens(self, complement=None):
         """
-        Convert kmer list into token list
+        Append a kmer to the list of kmers
 
-        :param str complement: complement of Kmer alphabet (*default: None*)
-        :return: tokens corresponding to kmers in list
-        :rtype: KmerList.TokenList
+        :param Kmer kmer: new kmer
         """
-        if complement is None:
-            complement = self.complement
-            if self._tokens is None:
-                tokens = []
-                for kmer in self:
-                    kmer = kmer.lower()
-                    rev_comp_kmer = kmer.translate(str.maketrans(self.alphabet, complement))[::-1]
-                    tokens.append(Kmer.Token(kmer, "|".join(sorted([kmer, rev_comp_kmer]))))
-                self._tokens = KmerList.TokenList(tokens)
+        args = {k: self.__dict__[k] for k in ['alphabet', 'complement', 'sep']}
+        new_kmer_list = []
+        for i in range(len(self._kmers)):
+            args['kmer'] = self._kmers[i]
+            args['pos'] = self.pos[i]
+            new_kmer_list.append(Kmer(**args))
+        if isinstance(kmer, Kmer):
+            new_kmer_list.append(kmer)
         else:
-            if set(complement) != set(self.alphabet):
-                raise ValueError("Complement alphabet must be a permutation of alphabet.")
-        return KmerList.TokenList(self._tokens)
+            args['kmer'] = kmer
+            new_kmer_list.append(Kmer(**args))
+        return KmerList(new_kmer_list)
 
 
-    def all_kmers(self):
+    def extend(self, kmer_list):
         """
-        List all possible unique kmers
+        Concatenate lists of kmers
 
-        :return: list of all sorted unique kmers
-        :rtype: KmerList
+        :param KmerList kmer_list: new kmer list to concatenate
         """
-        kmer_set = set() 
-        all_ktuples = product(self.alphabet, repeat=self.k)
-        for ktuple in all_ktuples:
-            kmer = Kmer(ktuple, alphabet=self.alphabet)
-            kmer_set.add(kmer)
-        uniq_kmers = KmerList(sorted(list(kmer_set)))
-        return uniq_kmers
+        new_kmer_list = KmerList(self._kmers)
+        for kmer in kmer_list:
+            new_kmer_list = new_kmer_list.append(kmer)
+        return new_kmer_list
 
 
-    def entropy_stopwords(self, sig=2, entropy_threshold=1.3):
-        """
-        Generate set of stopwords according to Shannon entropy
-
-        :param int sig: Shannon entropy upper bound for stopwords (*default: 2*)
-        :param float entropy_threshold: Shannon entropy upper bound for stopwords (*default: 1.3*)
-        :return: list of sorted low-complexity tokens
-        :rtype: KmerList.TokenList
-        """
-        stopword_set = set()
-        for token in self.all_kmers().to_tokens():
-            if token.entropy(sig=sig) < entropy_threshold:
-                stopword_set.add(token)
-            else:
-                continue
-        stopwords = KmerList.TokenList(sorted(list(stopword_set)))
-        return stopwords
-
-
-class KmerCorpus(list):
+class KmerCorpus:
     """
     Class to manage corpora of kmer tokens
+
+    :param list kmer_lists: list of KmerList objects (*default: []*)
+    :param str delim: delimiter between kmer tokens (*default: ' '*)
     """
-    class TokenSentence(str):
-        """
-        Class to manage lists of kmer tokens 
-        """
-        k = None
-        alphabet = None
-        complement = None
-        _sep = None
-        _kmers = None
-        _tokens = None
-        def __new__(cls, token_list=None, sep=' ', **kwargs):
-            """
-            Create new KmerCorpus.TokenSentence object extending list
-
-            :param KmerList.TokenList token_list: list of kmer tokens (*default: None*)
-            :param str sep: delimiter for token 'words' (*default: ''*)
-            :return: new KmerCorpus.TokenSentence object
-            :rtype: KmerCorpus.TokenSentence
-            """
-            if token_list is None:
-                obj = str.__new__(cls, '')
-
-                kmers = None
-                tokens = None
-
-                obj.k = None
-                obj.alphabet = None
-                obj.complement = None
-
-            else:
-                content = ''
-                kmers = []
-                for x in token_list:
-                    if isinstance(x, Kmer):
-                        kmer = x
-                        token = x.to_token()
-                    elif isinstance(x, Kmer.Token):
-                        kmer = x.to_kmer()
-                        token = x
-                    else:
-                        raise ValueError("Argument of type {} is not a list, KmerList, or KmerList.TokenList type.".format(type(x)))
-
-                    kmers.append(kmer)
-                    if content == '':
-                        content = token
-                    else:
-                        content = sep.join([content, token])
-
-                    if x.k != token_list[0].k:
-                        raise ValueError("Kmer sizes must match.")
-                    elif set(x.alphabet) != set(token_list[0].alphabet):
-                        raise ValueError("Kmer alphabets must match.")
-                    elif set(x.complement) != set(token_list[0].complement):
-                        raise ValueError("Kmer complement alphabets must match.")
-
-                obj = str.__new__(cls, content)
-
-                obj.k = token_list[0].k
-                obj.alphabet = token_list[0].alphabet
-                obj.complement = token_list[0].complement
-
-            obj._sep = sep
-            obj._kmers = KmerList(kmers)
-            obj._tokens = obj._kmers.to_tokens()
-            return obj
-
-
-        def __add__(self, token_sent):
-            """
-            Concatenate two KmerCorpus.TokenSentence objects
-
-            :param KmerCorpus.TokenSentence token_sent: KmerCorpus.TokenSentence object corresponding to a KmerList
-            """
-            if not isinstance(token_sent, KmerCorpus.TokenSentence):
-                raise ValueError("Argument of type {} is not of type KmerCorpus.TokenSentence.".format(type(token_sent)))
-
-            if len(self) == 0:
-                self.__init__(token)
-                self.k = token_sent.k
-                self.alphabet = token_sent.alphabet
-                self.complement = token_sent.complement
-                self = token_sent
-            else:
-                if self.k != token_sent.k:
-                    raise ValueError("Kmer size of Kmer.Token must match that of TokenList.")
-                elif set(self.alphabet) != set(token_sent.alphabet):
-                    raise ValueError("Alphabet of Kmer.Token must match that of TokenList.")
-                elif set(self.complement) != set(token_sent.complement):
-                    raise ValueError("Complement alphabet of Kmer.Token must match that of TokenList.")
-
-                # content = self._sep.join([self, token_sent])
-                new_tokens = self.to_tokens()
-                new_tokens.extend(token_sent.to_tokens())
-                obj = KmerCorpus.TokenSentence(KmerList.TokenList(new_tokens), sep=self._sep)
-            return obj
-
-
-        def to_kmers(self):
-            """
-            Convert tokens into their original kmers
-
-            :return: kmers
-            :rtype: KmerList
-            """
-            return KmerList(self._kmers)
-
-
-        def to_tokens(self):
-            """
-            Convert kmers to tokens
-
-            :return: tokens
-            :rtype: TokenList
-            """
-            return KmerList.TokenList(self._tokens)
-
-
-        def all_tokens(self):
-            """
-            List all possible unique tokens
-
-            :return: list of all sorted unique tokens
-            :rtype: KmerList.TokenList
-            """
-            token_set = set() 
-            all_kmers = self.to_kmers().all_kmers()
-            for kmer in all_kmers:
-                token = kmer.to_token()
-                token_set.add(token)
-            uniq_tokens = KmerList.TokenList(sorted(list(token_set))) 
-            return uniq_tokens
-
-
-        def entropy_stopwords(self, sig=2, entropy_threshold=1.3):
-            """
-            Generate set of stopwords according to Shannon entropy
-
-            :param int sig: Shannon entropy upper bound for stopwords (*default: 2*)
-            :param float entropy_threshold: Shannon entropy upper bound for stopwords (*default: 1.3*)
-            :return: list of sorted low-complexity tokens
-            :rtype: KmerList.TokenList
-            """
-            stopword_set = set()
-            for token in self.all_tokens():
-                if token.entropy(sig=sig) < entropy_threshold:
-                    stopword_set.add(token)
-                else:
-                    continue
-            stopwords = KmerList.TokenList(sorted(list(stopword_set)))
-            return stopwords
-
-
-    def __init__(self, arg, k=None, alphabet=None, complement=None, **kwargs):
-        """
-        Create new KmerCorpus object extending list
-
-        :param int k: size of each kmer (*default: None*)
-        :param str alphabet: allowed alphabet for kmer (*default: None*)
-        :param str complement: complement to alphabet (*default: None*)
-        :param boolean lower: force kmer to be lowercase (*default: None*)
-        :return: new KmerCorpus object
-        :rtype: KmerCorpus
-        """
-        
-        list.__init__(self, arg)
-
-        if (k is None) or (alphabet is None) or (complement is None):
-            if len(self) == 0:
-                raise ValueError("Kmer alphabet and complement alphabet must be specified.")
-            else:
-                for x in self[1:]:
-                    if x.k != self[0].k:
-                        raise ValueError("Kmer sizes must match.")
-                    elif set(x.alphabet) != set(self[0].alphabet):
-                        raise ValueError("Kmer alphabets must match.")
-                    elif set(x.complement) != set(self[0].complement):
-                        raise ValueError("Kmer complement alphabets must match.")
-
-                self.k = self[0].k
-                self.alphabet = self[0].alphabet
-                self.complement = self[0].complement
+    def __init__(self, kmer_lists=[], delim=' '):
+        self.delim = delim
+        self.pos = []
+        self._kmer_lists = []
+        if (len(kmer_lists) == 0) or (not isinstance(kmer_lists[0], KmerList)):
+            kmer_list_vars = vars(KmerList())
         else:
-            if set(complement) != set(alphabet):
-                raise ValueError("Complement alphabet must be a permutation of alphabet.") 
-            self.k = k
-            self.alphabet = alphabet
-            self.complement = complement
+            kmer_list_vars = vars(kmer_lists[0])
+        for kmer_list in kmer_lists:
+            if not isinstance(kmer_list, KmerList):
+                kmer_list = KmerList(kmer_list)
+            for k, v in vars(kmer_list).items():
+                if k == '_kmers':
+                    self._kmer_lists.append(v)
+                elif k == 'pos':
+                    self.pos.append(v)
+                elif (k == 'k') and (kmer_list_vars[k] == 0):
+                    self.k = v
+                elif v != kmer_list_vars[k]:
+                    raise ValueError("All kmer lists in list must have the same attributes (attr '{}': {} != {}).".format(k, v, kmer_list_vars[k]))
+        for k, v in kmer_list_vars.items():
+            if not k in ['_kmers', 'pos']:
+                self.__dict__[k] = v
 
 
-    def append(self, token_sentence):
-            """
-            Append new KmerCorpus.TokenSentence to KmerCorpus
+    def __str__(self):
+        corpus = []
+        for i in range(len(self._kmer_lists)):
+            tokens = []
+            for j in range(len(self._kmer_lists[i])):
+                token = self.__getitem__((i, j)).token()
+                tokens.append(token)
+            corpus.append(self.delim.join(tokens))
+        return str(corpus)
 
-            :param KmerCorpus.TokenSentence token_sentence: kmer token sentence
-            """
-            if len(self) == 0:
-                self.__init__([token_sentence])
-            else:
-                if self.k != token_sentence.k:
-                    raise ValueError("Kmer size of Kmer.Token must match that of TokenList.")
-                elif set(self.alphabet) != set(token_sentence.alphabet):
-                    raise ValueError("Alphabet of Kmer.Token must match that of TokenList.")
-                elif set(self.complement) != set(token_sentence.complement):
-                    raise ValueError("Complement alphabet of Kmer.Token must match that of TokenList.")
-                new_corpus = list(self)
-                new_corpus.append(token_sentence)
-                self.__init__(new_corpus)
+
+    def __repr__(self):
+        return "<KmerCorpus {}>".format(self.__str__())
+
+
+    def __len__(self):
+        return len(self._kmer_lists)
+
+
+    def __getitem__(self, vals):
+        args = {k: self.__dict__[k] for k in ['alphabet', 'complement', 'sep']}
+        if isinstance(vals, integer_types):
+            args['pos'] = self.pos[vals]
+            kmers = []
+            for kmer in self._kmer_lists[vals]:
+                args['kmer'] = kmer
+                kmers.append(Kmer(**args))
+            return KmerList(kmers)
+        if len(vals) == 1:
+            val = vals[0]
+            args['pos'] = self.pos[val]
+            kmers = []
+            for kmer in self._kmer_lists[val]:
+                args['kmer'] = kmer
+                kmers.append(Kmer(**args))
+            return KmerList(kmers)
+        elif len(vals) == 2:
+            val1, val2 = vals
+            args['kmer'] = self._kmer_lists[val1][val2]
+            args['pos'] = self.pos[val1][val2]
+            return Kmer(**args)
+
+
+    def __add__(self, kmer_corpus):
+        new_kmer_corpus = self.extend(kmer_corpus)
+        return new_kmer_corpus
+
+
+    def __iadd__(self, kmer_corpus):
+        new_kmer_corpus = self.extend(kmer_corpus)
+        self.__dict__.update(new_kmer_corpus.__dict__)
+        return self
+
+
+    def append(self, kmer_list):
+        """
+        Append a kmer list to the corpus of kmer lists
+
+        :param KmerList kmer_list: new kmer list
+        """
+        args = {k: self.__dict__[k] for k in ['alphabet', 'complement', 'sep']}
+        new_kmer_corpus = []
+        for i in range(len(self._kmer_lists)):
+            new_k = []
+            for j in range(len(self._kmer_lists[i])):
+                args['kmer'] = self._kmer_lists[i][j]
+                args['pos'] = self.pos[i][j]
+                new_k.append(Kmer(**args))
+            new_kmer_corpus.append(new_k)
+        if isinstance(kmer_list, KmerList):
+            new_kmer_corpus.append(kmer_list)
+        else:
+            new_k = []
+            for kmer in k:
+                args['kmer'] = kmer
+                new_k.append(Kmer(**args))
+            new_kmer_corpus.append(new_k)
+        return KmerCorpus(new_kmer_corpus)
 
 
     def extend(self, kmer_corpus):
-            """
-            Extend KmerCorpus with another KmerCorpus
+        """
+        Concatenate kmer corpora
 
-            :param KmerCorpus kmer_corpus: kmer token corpus
-            """
-            for token_sentence in kmer_corpus:
-                self.append(token_sentence)
+        :param KmerCorpus kmer_corpus: new kmer corpus to concatenate
+        """
+        new_kmer_corpus = KmerCorpus(self._kmer_lists)
+        for kmer_list in kmer_corpus:
+            new_kmer_corpus = new_kmer_corpus.append(kmer_list)
+        return new_kmer_corpus
 
 
     def all_kmers(self):
@@ -689,13 +305,19 @@ class KmerCorpus(list):
         :return: list of all sorted unique kmers
         :rtype: KmerList
         """
-        kmer_set = set() 
+        args = {k: self.__dict__[k] for k in ['alphabet', 'complement', 'sep']}
+        kmer_list = []
         all_ktuples = product(self.alphabet, repeat=self.k)
         for ktuple in all_ktuples:
-            kmer = Kmer(ktuple, alphabet=self.alphabet)
-            kmer_set.add(kmer)
-        uniq_kmers = KmerList(sorted(list(kmer_set)))
-        return uniq_kmers
+            kmer = self.sep.join(ktuple)
+            if not kmer in kmer_list:
+                kmer_list.append(kmer)
+        kmer_list = sorted(kmer_list)
+        uniq_kmers = []
+        for kmer in kmer_list:
+            args['kmer'] = kmer
+            uniq_kmers.append(Kmer(**args))
+        return KmerList(uniq_kmers)
 
 
     def all_tokens(self):
@@ -703,31 +325,30 @@ class KmerCorpus(list):
         List all possible unique tokens
 
         :return: list of all sorted unique tokens
-        :rtype: KmerList.TokenList
+        :rtype: list
         """
-        token_set = set() 
+        token_list = []
         all_kmers = self.all_kmers()
         for kmer in all_kmers:
-            token = kmer.to_token()
-            token_set.add(token)
-        uniq_tokens = KmerList.TokenList(sorted(list(token_set))) 
-        return uniq_tokens
+            token = kmer.token()
+            if not token in token_list:
+                token_list.append(token)
+        return sorted(list(token_list))
 
 
-    def entropy_stopwords(self, sig=2, entropy_threshold=1.3):
+    def entropy_stopwords(self, sig=2, entropy_threshold=1.0):
         """
         Generate set of stopwords according to Shannon entropy
 
         :param int sig: Shannon entropy upper bound for stopwords (*default: 2*)
-        :param float entropy_threshold: Shannon entropy upper bound for stopwords (*default: 1.3*)
+        :param float entropy_threshold: Shannon entropy upper bound for stopwords (*default: 1.0*)
         :return: list of sorted low-complexity tokens
-        :rtype: KmerList.TokenList
+        :rtype: list
         """
         stopword_set = set()
-        for token in self.all_tokens():
-            if token.entropy(sig=sig) < entropy_threshold:
-                stopword_set.add(token)
+        for kmer in self.all_kmers():
+            if kmer.entropy(sig=sig) < entropy_threshold:
+                stopword_set.add(kmer.token())
             else:
                 continue
-        stopwords = KmerList.TokenList(sorted(list(stopword_set)))
-        return stopwords
+        return sorted(list(stopword_set))

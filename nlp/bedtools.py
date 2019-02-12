@@ -17,28 +17,29 @@ class BedTool(bt):
     """
     Class to wrap pybedtools.BedTool for use with machine learning and
     natural language processing
+
+    :param str fasta: path to fasta file (*default: None*)
+    :param str expr_path: path to normalized feature count table (*default: None*)
+    :param str alphabet: characters in alphabet (*default: 'atcg'*)
+    :param str complement: complement alphabet (*default: 'tagc'*)
     """
-    class CorpusGen:
+    class CorpusGen(KmerCorpus):
         """
         Class to create a corpus object from a bedtool
+
+        :param BedTool bedtool: bedtool object
+        :param int k: size of each kmer
+        :param str fasta: path to fasta file or stream (*default: None*)
+        :param int upstream: number of bases upstream from each interval to read (*default: 0*)
+        :param int downstream: number of bases downstream from each interval to read (*default: 0*)
+        :param int offset: shift offset between kmers in each interval (*default: 1*)
+        :param str delim: delimiter for token 'words'
+        :param str alphabet: allowed alphabet for kmer (*default: 'atcg'*)
+        :param str complement: complement to alphabet (*default: 'tagc'*)
         """
-        def __init__(self, bedtool, k, fasta=None, upstream=0, downstream=0, offset=1, sep=' ',
-                                       alphabet='atcg', complement='tagc', lower=True):
-            """
-            Initialize corpus object of kmer tokens
-            
-            :param BedTool bedtool: bedtool object
-            :param int k: size of each kmer
-            :param str fasta: path to fasta file or stream (*default: None*)
-            :param int upstream: number of bases upstream from each interval to read (*default: 0*)
-            :param int downstream: number of bases downstream from each interval to read (*default: 0*)
-            :param int offset: shift offset between kmers in each interval (*default: 1*)
-            :param str sep: delimiter for token 'words'
-            :param tuple/list pos: position of kmer in genome (*default: None*)
-            :param str alphabet: allowed alphabet for kmer (*default: 'atcg'*)
-            :param str complement: complement to alphabet (*default: 'tagc'*)
-            :param boolean lower: force kmer to be lowercase (*default: True*)
-            """
+        def __init__(self, bedtool, k, fasta=None, upstream=0, downstream=0, offset=1, delim=' ',
+                                       alphabet='atcg', complement='tagc'):
+            KmerCorpus.__init__(self)
             self._bedtool = bedtool
             self.k = k
             if fasta is None:
@@ -48,14 +49,12 @@ class BedTool(bt):
             self.upstream = upstream
             self.downstream = downstream
             self.offset = offset
-            self.sep = sep
+            self.delim = delim
             self.alphabet = alphabet
             self.complement = complement
-            self.lex = KmerList([], k=k, alphabet=alphabet, complement=complement)
-            self._lower = lower
 
 
-        def __call__(self, intervals, fasta=None, upstream=None, downstream=None, offset=None, sep=None):
+        def __call__(self, intervals, fasta=None, upstream=None, downstream=None, offset=None, delim=None):
             """
             Return kmer tokens from intervals
             
@@ -64,7 +63,7 @@ class BedTool(bt):
             :param int upstream: number of bases upstream from each interval to read (*default: None*)
             :param int downstream: number of bases downstream from each interval to read (*default: None*)
             :param int offset: shift offset between kmers in each interval (*default: None*)
-            :param str sep: delimiter for token 'words'
+            :param str delim: delimiter for token 'words'
             :return: corpus of kmer tokens from intervals
             :rtype: list
             """
@@ -82,7 +81,7 @@ class BedTool(bt):
                                                                      upstream=new_locals['upstream'],
                                                                      downstream=new_locals['downstream'],
                                                                      offset=new_locals['offset'])
-                corpus.append(new_locals['sep'].join(tokens))
+                corpus.append(new_locals['delim'].join(tokens))
             return corpus
 
 
@@ -93,15 +92,13 @@ class BedTool(bt):
     class TargetGen:
         """
         Class to create a corpus object from a bedtool and kmer model information
+
+        :param BedTool bedtool: bedtool object
+        :param str expr: path to normalized feature count table (*default: None*)
+        :param str sample_regex: regex to filter by sample name (*default: None*)
         """
         def __init__(self, bedtool, expr, sample_regex=None, **kwargs):
-            """
-            Initialize target object from gene expression level dataframe
 
-            :param BedTool bedtool: bedtool object
-            :param str expr: path to normalized feature count table (*default: None*)
-            :param str sample_regex: regex to filter by sample name (*default: None*)
-            """
             self._bedtool = bedtool
             self.fn = expr
             self._sample_regex = sample_regex
@@ -155,14 +152,6 @@ class BedTool(bt):
     alphabet = None
     complement = None
     def __new__(cls, *args, fasta=None, expr_path=None, alphabet='atcg', complement='tagc', **kwargs):
-        """
-        Initialize BedTool object
-
-        :param str/io.TextIOWrapper fasta: path to fasta file or stream (*default: None*)
-        :param str expr_path: path to normalized feature count table (*default: None*)
-        :param str alphabet: characters in alphabet (*default: 'atcg'*)
-        :param str complement: complement alphabet (*default: 'tagc'*)
-        """
         if (len(args) == 1) and isinstance(args, (bt, BedTool)):
             obj = args[0]
         else:
@@ -222,8 +211,8 @@ class BedTool(bt):
         """
         Read sequence from annotated interval in fasta file
 
-        :param int/Interval interval: index of interval or pybedtools Interval object
-        :param str/io.TextIOWrapper fasta: path to fasta file or stream (*default: None*)
+        :param int interval: index of interval
+        :param str fasta: path to fasta file (*default: None*)
         :param int upstream: number of bases upstream from interval to read (*default: 0*)
         :param int downstream: number of bases downstream from interval to read (*default: 0*)
         :return: raw interval sequence from fasta file
@@ -250,9 +239,9 @@ class BedTool(bt):
         """
         Read kmers from sequence from annotated interval in fasta file
 
-        :param int/Interval interval: index of interval or pybedtools Interval object
+        :param int interval: index of interval
         :param int k: size of each kmer
-        :param str/io.TextIOWrapper fasta: path to fasta file or stream (*default: None*)
+        :param str fasta: path to fasta file (*default: None*)
         :param int upstream: number of bases upstream from interval to read (*default: 0*)
         :param int downstream: number of bases downstream from interval to read (*default: 0*)
         :param int offset: shift offset between kmers in interval (*default: 1*)
@@ -278,46 +267,34 @@ class BedTool(bt):
         """
         Read tokens from sequence from annotated interval in fasta file
 
-        :param int/Interval interval: index of interval or pybedtools Interval object
+        :param int interval: index of interval
         :param int k: size of each kmer
-        :param str/io.TextIOWrapper fasta: path to fasta file or stream (*default: None*)
+        :param str fasta: path to fasta file (*default: None*)
         :param int upstream: number of bases upstream from interval to read (*default: 0*)
         :param int downstream: number of bases downstream from interval to read (*default: 0*)
         :param int offset: shift offset between kmers in interval (*default: 1*)
         :return: list of kmer tokens in interval
-        :rtype: KmerList.TokenList
+        :rtype: list
         """
-        if isinstance(interval, integer_types):
-            interval = self.__getitem__(int(interval))
-        elif not isinstance(interval, Interval):
-            raise ValueError("Argument of type {} must be an index or Interval object.".format(type(interval)))
-
-        sequence = self.read_seq(interval, fasta=fasta, upstream=upstream, downstream=downstream)
-        tokens = []
-        for i in range(0, len(sequence) - k + 1, offset):
-            position = (interval.chrom, interval.start - upstream + i)
-            kmer = Kmer(sequence[i:i + k], pos=position, alphabet=self.alphabet, complement=self.complement)
-            tokens.append(kmer.to_token())
-        tokens = KmerList.TokenList(tokens)
-        return tokens
+        kmers = self.read_kmers(interval, k, fasta=fasta, upstream=upstream, downstream=downstream, offset=offset)
+        return [x.token() for x in kmers]
 
 
-    def get_corpus(self, k, fasta=None, upstream=0, downstream=0, offset=1, sep=' ', lower=True):
+    def get_corpus(self, k, fasta=None, upstream=0, downstream=0, offset=1, delim=' '):
         """
         Get corpus object of kmer tokens
         
         :param int k: size of each kmer
-        :param str/io.TextIOWrapper fasta: path to fasta file or stream (*default: None*)
+        :param str fasta: path to fasta file (*default: None*)
         :param int upstream: number of bases upstream from each interval to read (*default: 0*)
         :param int downstream: number of bases downstream from each interval to read (*default: 0*)
         :param int offset: shift offset between kmers in each interval (*default: 1*)
-        :param str sep: delimiter for token 'words'
-        :param bool lower: makes all tokens lowercase
-        :return: BedTool.CorpusGen of kmer tokens
+        :param str delim: delimiter for token 'words'
+        :return: corpus of kmer tokens
         :rtype: BedTool.CorpusGen
         """
-        return BedTool.CorpusGen(self, k, fasta=fasta, upstream=upstream, downstream=downstream, offset=offset, sep=sep,
-                                          alphabet=self.alphabet, complement=self.complement, lower=lower)
+        return BedTool.CorpusGen(self, k, fasta=fasta, upstream=upstream, downstream=downstream, offset=offset, delim=delim,
+                                          alphabet=self.alphabet, complement=self.complement)
 
 
     def get_target(self, expr, **kwargs):
