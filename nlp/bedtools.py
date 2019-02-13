@@ -263,7 +263,7 @@ class BedTool(bt):
         """
         if fasta is None:
             fasta = self._fasta
-        return BedTool.SeqGen(self, k, fasta=fasta, upstream=upstream, downstream=downstream)
+        return BedTool.SeqGen(self, fasta=fasta, upstream=upstream, downstream=downstream)
     
     
     # def read_kmers(self, interval, k, fasta=None, upstream=0, downstream=0, offset=1):
