@@ -261,6 +261,8 @@ class BedTool(bt):
         :return: sequence for corresponding interval
         :rtype: BedTool.SeqGen
         """
+        if fasta is None:
+            fasta = self._fasta
         return BedTool.SeqGen(self, k, fasta=fasta, upstream=upstream, downstream=downstream)
     
     
