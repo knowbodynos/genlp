@@ -249,6 +249,31 @@ natural language processing</p>
 <dd></dd></dl>
 
 <dl class="method">
+<dt id="genoml.nlp.bedtools.BedTool.get_seq">
+<code class="descname">get_seq</code><span class="sig-paren">(</span><em>fasta=None</em>, <em>upstream=0</em>, <em>downstream=0</em><span class="sig-paren">)</span><a class="headerlink" href="#genoml.nlp.bedtools.BedTool.get_seq" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get sequence object from fasta file</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>fasta</strong> (<em>str</em>) – path to fasta file (<em>default: None</em>)</li>
+<li><strong>upstream</strong> (<em>int</em>) – number of bases upstream from each interval to read (<em>default: 0</em>)</li>
+<li><strong>downstream</strong> (<em>int</em>) – number of bases downstream from each interval to read (<em>default: 0</em>)</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">sequence for corresponding interval</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last"><a class="reference internal" href="#genoml.nlp.bedtools.BedTool.SeqGen" title="genoml.nlp.bedtools.BedTool.SeqGen">BedTool.SeqGen</a></p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
 <dt id="genoml.nlp.bedtools.BedTool.read_seq">
 <code class="descname">read_seq</code><span class="sig-paren">(</span><em>interval</em>, <em>fasta=None</em>, <em>upstream=0</em>, <em>downstream=0</em><span class="sig-paren">)</span><a class="headerlink" href="#genoml.nlp.bedtools.BedTool.read_seq" title="Permalink to this definition">¶</a></dt>
 <dd><p>Read sequence from annotated interval in fasta file</p>

@@ -249,6 +249,19 @@ class BedTool(bt):
         elif not isinstance(interval, Interval):
             raise ValueError("Argument of type {} must be an index or Interval object.".format(type(interval)))
         return self.seq((interval.chrom, interval.start - upstream, interval.end + downstream), fasta)#self._fasta)
+
+
+    def get_seq(self, fasta=None, upstream=0, downstream=0):
+        """
+        Get sequence object from fasta file
+        
+        :param str fasta: path to fasta file (*default: None*)
+        :param int upstream: number of bases upstream from each interval to read (*default: 0*)
+        :param int downstream: number of bases downstream from each interval to read (*default: 0*)
+        :return: sequence for corresponding interval
+        :rtype: BedTool.SeqGen
+        """
+        return BedTool.SeqGen(self, k, fasta=fasta, upstream=upstream, downstream=downstream)
     
     
     # def read_kmers(self, interval, k, fasta=None, upstream=0, downstream=0, offset=1):
