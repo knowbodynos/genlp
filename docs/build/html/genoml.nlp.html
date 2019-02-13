@@ -181,22 +181,19 @@ natural language processing</p>
 </tbody>
 </table>
 <dl class="class">
-<dt id="genoml.nlp.bedtools.BedTool.CorpusGen">
-<em class="property">class </em><code class="descname">CorpusGen</code><span class="sig-paren">(</span><em>bedtool</em>, <em>k</em>, <em>fasta=None</em>, <em>upstream=0</em>, <em>downstream=0</em>, <em>offset=1</em>, <em>delim=' '</em>, <em>alphabet='atcg'</em>, <em>complement='tagc'</em><span class="sig-paren">)</span><a class="headerlink" href="#genoml.nlp.bedtools.BedTool.CorpusGen" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#genoml.nlp.kmers.KmerCorpus" title="genoml.nlp.kmers.KmerCorpus"><code class="xref py py-class docutils literal notranslate"><span class="pre">genoml.nlp.kmers.KmerCorpus</span></code></a></p>
-<p>Class to create a corpus object from a bedtool</p>
+<dt id="genoml.nlp.bedtools.BedTool.SeqGen">
+<em class="property">class </em><code class="descname">SeqGen</code><span class="sig-paren">(</span><em>bedtool</em>, <em>fasta=None</em>, <em>upstream=0</em>, <em>downstream=0</em><span class="sig-paren">)</span><a class="headerlink" href="#genoml.nlp.bedtools.BedTool.SeqGen" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Class to create a sequence generator from a bedtool</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
 <li><strong>bedtool</strong> (<a class="reference internal" href="#genoml.nlp.bedtools.BedTool" title="genoml.nlp.bedtools.BedTool"><em>BedTool</em></a>) – bedtool object</li>
-<li><strong>k</strong> (<em>int</em>) – size of each kmer</li>
 <li><strong>fasta</strong> (<em>str</em>) – path to fasta file or stream (<em>default: None</em>)</li>
 <li><strong>upstream</strong> (<em>int</em>) – number of bases upstream from each interval to read (<em>default: 0</em>)</li>
 <li><strong>downstream</strong> (<em>int</em>) – number of bases downstream from each interval to read (<em>default: 0</em>)</li>
-<li><strong>offset</strong> (<em>int</em>) – shift offset between kmers in each interval (<em>default: 1</em>)</li>
-<li><strong>delim</strong> (<em>str</em>) – delimiter for token ‘words’</li>
 <li><strong>alphabet</strong> (<em>str</em>) – allowed alphabet for kmer (<em>default: ‘atcg’</em>)</li>
 <li><strong>complement</strong> (<em>str</em>) – complement to alphabet (<em>default: ‘tagc’</em>)</li>
 </ul>
@@ -205,8 +202,8 @@ natural language processing</p>
 </tbody>
 </table>
 <dl class="method">
-<dt id="genoml.nlp.bedtools.BedTool.CorpusGen.get_bedtool">
-<code class="descname">get_bedtool</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#genoml.nlp.bedtools.BedTool.CorpusGen.get_bedtool" title="Permalink to this definition">¶</a></dt>
+<dt id="genoml.nlp.bedtools.BedTool.SeqGen.get_bedtool">
+<code class="descname">get_bedtool</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#genoml.nlp.bedtools.BedTool.SeqGen.get_bedtool" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
@@ -252,80 +249,6 @@ natural language processing</p>
 <dd></dd></dl>
 
 <dl class="method">
-<dt id="genoml.nlp.bedtools.BedTool.get_corpus">
-<code class="descname">get_corpus</code><span class="sig-paren">(</span><em>k</em>, <em>fasta=None</em>, <em>upstream=0</em>, <em>downstream=0</em>, <em>offset=1</em>, <em>delim=' '</em><span class="sig-paren">)</span><a class="headerlink" href="#genoml.nlp.bedtools.BedTool.get_corpus" title="Permalink to this definition">¶</a></dt>
-<dd><p>Get corpus object of kmer tokens</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>k</strong> (<em>int</em>) – size of each kmer</li>
-<li><strong>fasta</strong> (<em>str</em>) – path to fasta file (<em>default: None</em>)</li>
-<li><strong>upstream</strong> (<em>int</em>) – number of bases upstream from each interval to read (<em>default: 0</em>)</li>
-<li><strong>downstream</strong> (<em>int</em>) – number of bases downstream from each interval to read (<em>default: 0</em>)</li>
-<li><strong>offset</strong> (<em>int</em>) – shift offset between kmers in each interval (<em>default: 1</em>)</li>
-<li><strong>delim</strong> (<em>str</em>) – delimiter for token ‘words’</li>
-</ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">corpus of kmer tokens</p>
-</td>
-</tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last"><a class="reference internal" href="#genoml.nlp.bedtools.BedTool.CorpusGen" title="genoml.nlp.bedtools.BedTool.CorpusGen">BedTool.CorpusGen</a></p>
-</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="method">
-<dt id="genoml.nlp.bedtools.BedTool.get_target">
-<code class="descname">get_target</code><span class="sig-paren">(</span><em>expr</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#genoml.nlp.bedtools.BedTool.get_target" title="Permalink to this definition">¶</a></dt>
-<dd><p>Get expression level target object</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>expr</strong> (<em>str</em>) – path to normalized feature count table</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">BedTool.TargetGet object to process expression levels</td>
-</tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">BedTool.TargetGet</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="method">
-<dt id="genoml.nlp.bedtools.BedTool.read_kmers">
-<code class="descname">read_kmers</code><span class="sig-paren">(</span><em>interval</em>, <em>k</em>, <em>fasta=None</em>, <em>upstream=0</em>, <em>downstream=0</em>, <em>offset=1</em><span class="sig-paren">)</span><a class="headerlink" href="#genoml.nlp.bedtools.BedTool.read_kmers" title="Permalink to this definition">¶</a></dt>
-<dd><p>Read kmers from sequence from annotated interval in fasta file</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>interval</strong> (<em>int</em>) – index of interval</li>
-<li><strong>k</strong> (<em>int</em>) – size of each kmer</li>
-<li><strong>fasta</strong> (<em>str</em>) – path to fasta file (<em>default: None</em>)</li>
-<li><strong>upstream</strong> (<em>int</em>) – number of bases upstream from interval to read (<em>default: 0</em>)</li>
-<li><strong>downstream</strong> (<em>int</em>) – number of bases downstream from interval to read (<em>default: 0</em>)</li>
-<li><strong>offset</strong> (<em>int</em>) – shift offset between kmers in interval (<em>default: 1</em>)</li>
-</ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">list of kmers in interval</p>
-</td>
-</tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last"><a class="reference internal" href="#genoml.nlp.kmers.KmerList" title="genoml.nlp.kmers.KmerList">KmerList</a></p>
-</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="method">
 <dt id="genoml.nlp.bedtools.BedTool.read_seq">
 <code class="descname">read_seq</code><span class="sig-paren">(</span><em>interval</em>, <em>fasta=None</em>, <em>upstream=0</em>, <em>downstream=0</em><span class="sig-paren">)</span><a class="headerlink" href="#genoml.nlp.bedtools.BedTool.read_seq" title="Permalink to this definition">¶</a></dt>
 <dd><p>Read sequence from annotated interval in fasta file</p>
@@ -345,34 +268,6 @@ natural language processing</p>
 </td>
 </tr>
 <tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">string</p>
-</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="method">
-<dt id="genoml.nlp.bedtools.BedTool.read_tokens">
-<code class="descname">read_tokens</code><span class="sig-paren">(</span><em>interval</em>, <em>k</em>, <em>fasta=None</em>, <em>upstream=0</em>, <em>downstream=0</em>, <em>offset=1</em><span class="sig-paren">)</span><a class="headerlink" href="#genoml.nlp.bedtools.BedTool.read_tokens" title="Permalink to this definition">¶</a></dt>
-<dd><p>Read tokens from sequence from annotated interval in fasta file</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>interval</strong> (<em>int</em>) – index of interval</li>
-<li><strong>k</strong> (<em>int</em>) – size of each kmer</li>
-<li><strong>fasta</strong> (<em>str</em>) – path to fasta file (<em>default: None</em>)</li>
-<li><strong>upstream</strong> (<em>int</em>) – number of bases upstream from interval to read (<em>default: 0</em>)</li>
-<li><strong>downstream</strong> (<em>int</em>) – number of bases downstream from interval to read (<em>default: 0</em>)</li>
-<li><strong>offset</strong> (<em>int</em>) – shift offset between kmers in interval (<em>default: 1</em>)</li>
-</ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">list of kmer tokens in interval</p>
-</td>
-</tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">list</p>
 </td>
 </tr>
 </tbody>

@@ -5,12 +5,12 @@ from pybedtools import Interval, helpers, BedTool as bt
 from multiprocessing import Pool
 from io import TextIOWrapper
 from six import integer_types, string_types
-from collections.abc import Sequence, Iterator
+# from collections.abc import Sequence, Iterator
 from .kmers import Kmer, KmerList, KmerCorpus
 
 # Add numpy integer types to 
 integer_types = (*integer_types, numpy.int_)
-list_types = (list, tuple, set, Sequence, Iterator, numpy.ndarray)
+# list_types = (list, tuple, set, Sequence, Iterator, numpy.ndarray)
 
 
 class BedTool(bt):
@@ -23,53 +23,95 @@ class BedTool(bt):
     :param str alphabet: characters in alphabet (*default: 'atcg'*)
     :param str complement: complement alphabet (*default: 'tagc'*)
     """
-    class CorpusGen(KmerCorpus):
+    # class CorpusGen(KmerCorpus):
+    #     """
+    #     Class to create a corpus object from a bedtool
+
+    #     :param BedTool bedtool: bedtool object
+    #     :param int k: size of each kmer
+    #     :param str fasta: path to fasta file or stream (*default: None*)
+    #     :param int upstream: number of bases upstream from each interval to read (*default: 0*)
+    #     :param int downstream: number of bases downstream from each interval to read (*default: 0*)
+    #     :param int offset: shift offset between kmers in each interval (*default: 1*)
+    #     :param str delim: delimiter for token 'words'
+    #     :param str alphabet: allowed alphabet for kmer (*default: 'atcg'*)
+    #     :param str complement: complement to alphabet (*default: 'tagc'*)
+    #     """
+    #     def __init__(self, bedtool, k, fasta=None, upstream=0, downstream=0, offset=1, delim=' ',
+    #                                    alphabet='atcg', complement='tagc'):
+    #         KmerCorpus.__init__(self)
+    #         self._bedtool = bedtool
+    #         self.k = k
+    #         if fasta is None:
+    #             self.fasta = bedtool._fasta
+    #         else:
+    #             self.fasta = fasta
+    #         self.upstream = upstream
+    #         self.downstream = downstream
+    #         self.offset = offset
+    #         self.delim = delim
+    #         self.alphabet = alphabet
+    #         self.complement = complement
+
+
+    #     def __call__(self, *intervals):
+    #         """
+    #         Return kmer tokens from intervals
+            
+    #         :param list intervals: list of interval indexes or pybedtools Interval objects
+    #         :return: corpus of kmer tokens from intervals
+    #         :rtype: list
+    #         """
+    #         corpus = []
+    #         for interval in intervals:
+    #             tokens = self._bedtool.read_tokens(interval, self.k, fasta=self.fasta, 
+    #                                                                  upstream=self.upstream,
+    #                                                                  downstream=self.downstream,
+    #                                                                  offset=self.offset)
+    #             corpus.append(self.delim.join(tokens))
+    #         return corpus
+
+
+    #     def get_bedtool(self):
+    #         return self._bedtool
+
+
+    class SeqGen:
         """
-        Class to create a corpus object from a bedtool
+        Class to create a sequence generator from a bedtool
 
         :param BedTool bedtool: bedtool object
-        :param int k: size of each kmer
         :param str fasta: path to fasta file or stream (*default: None*)
         :param int upstream: number of bases upstream from each interval to read (*default: 0*)
         :param int downstream: number of bases downstream from each interval to read (*default: 0*)
-        :param int offset: shift offset between kmers in each interval (*default: 1*)
-        :param str delim: delimiter for token 'words'
         :param str alphabet: allowed alphabet for kmer (*default: 'atcg'*)
         :param str complement: complement to alphabet (*default: 'tagc'*)
         """
-        def __init__(self, bedtool, k, fasta=None, upstream=0, downstream=0, offset=1, delim=' ',
-                                       alphabet='atcg', complement='tagc'):
-            KmerCorpus.__init__(self)
+        def __init__(self, bedtool, fasta=None, upstream=0, downstream=0):
             self._bedtool = bedtool
-            self.k = k
             if fasta is None:
                 self.fasta = bedtool._fasta
             else:
                 self.fasta = fasta
             self.upstream = upstream
             self.downstream = downstream
-            self.offset = offset
-            self.delim = delim
-            self.alphabet = alphabet
-            self.complement = complement
 
 
         def __call__(self, *intervals):
             """
-            Return kmer tokens from intervals
+            Return sequence from interval
             
             :param list intervals: list of interval indexes or pybedtools Interval objects
-            :return: corpus of kmer tokens from intervals
+            :return: sequence of bases from intervals
             :rtype: list
             """
-            corpus = []
+            sequences = []
             for interval in intervals:
-                tokens = self._bedtool.read_tokens(interval, self.k, fasta=self.fasta, 
-                                                                     upstream=self.upstream,
-                                                                     downstream=self.downstream,
-                                                                     offset=self.offset)
-                corpus.append(self.delim.join(tokens))
-            return corpus
+                sequence = self._bedtool.read_seq(interval, fasta=self.fasta, 
+                                                            upstream=self.upstream,
+                                                            downstream=self.downstream)
+                sequences.append(sequence)
+            return sequences
 
 
         def get_bedtool(self):
@@ -209,83 +251,83 @@ class BedTool(bt):
         return self.seq((interval.chrom, interval.start - upstream, interval.end + downstream), fasta)#self._fasta)
     
     
-    def read_kmers(self, interval, k, fasta=None, upstream=0, downstream=0, offset=1):
-        """
-        Read kmers from sequence from annotated interval in fasta file
+    # def read_kmers(self, interval, k, fasta=None, upstream=0, downstream=0, offset=1):
+    #     """
+    #     Read kmers from sequence from annotated interval in fasta file
 
-        :param int interval: index of interval
-        :param int k: size of each kmer
-        :param str fasta: path to fasta file (*default: None*)
-        :param int upstream: number of bases upstream from interval to read (*default: 0*)
-        :param int downstream: number of bases downstream from interval to read (*default: 0*)
-        :param int offset: shift offset between kmers in interval (*default: 1*)
-        :return: list of kmers in interval
-        :rtype: KmerList
-        """
-        if isinstance(interval, integer_types):
-            interval = self.__getitem__(int(interval))
-        elif not isinstance(interval, Interval):
-            raise ValueError("Argument {} must be an index or Interval object.".format(type(interval)))
+    #     :param int interval: index of interval
+    #     :param int k: size of each kmer
+    #     :param str fasta: path to fasta file (*default: None*)
+    #     :param int upstream: number of bases upstream from interval to read (*default: 0*)
+    #     :param int downstream: number of bases downstream from interval to read (*default: 0*)
+    #     :param int offset: shift offset between kmers in interval (*default: 1*)
+    #     :return: list of kmers in interval
+    #     :rtype: KmerList
+    #     """
+    #     if isinstance(interval, integer_types):
+    #         interval = self.__getitem__(int(interval))
+    #     elif not isinstance(interval, Interval):
+    #         raise ValueError("Argument {} must be an index or Interval object.".format(type(interval)))
 
-        sequence = self.read_seq(interval, fasta=fasta, upstream=upstream, downstream=downstream)
-        kmers = []
-        for i in range(0, len(sequence) - k + 1, offset):
-            position = (interval.chrom, interval.start - upstream + i)
-            kmer = Kmer(sequence[i:i + k], pos=position, alphabet=self.alphabet, complement=self.complement)
-            kmers.append(kmer)
-        return KmerList(kmers)
+    #     sequence = self.read_seq(interval, fasta=fasta, upstream=upstream, downstream=downstream)
+    #     kmers = []
+    #     for i in range(0, len(sequence) - k + 1, offset):
+    #         position = (interval.chrom, interval.start - upstream + i)
+    #         kmer = Kmer(sequence[i:i + k], pos=position, alphabet=self.alphabet, complement=self.complement)
+    #         kmers.append(kmer)
+    #     return KmerList(kmers)
     
     
-    def read_tokens(self, interval, k, fasta=None, upstream=0, downstream=0, offset=1):
-        """
-        Read tokens from sequence from annotated interval in fasta file
+    # def read_tokens(self, interval, k, fasta=None, upstream=0, downstream=0, offset=1):
+    #     """
+    #     Read tokens from sequence from annotated interval in fasta file
 
-        :param int interval: index of interval
-        :param int k: size of each kmer
-        :param str fasta: path to fasta file (*default: None*)
-        :param int upstream: number of bases upstream from interval to read (*default: 0*)
-        :param int downstream: number of bases downstream from interval to read (*default: 0*)
-        :param int offset: shift offset between kmers in interval (*default: 1*)
-        :return: list of kmer tokens in interval
-        :rtype: list
-        """
-        if isinstance(interval, integer_types):
-            interval = self.__getitem__(int(interval))
-        elif not isinstance(interval, Interval):
-            raise ValueError("Argument {} must be an index or Interval object.".format(type(interval)))
+    #     :param int interval: index of interval
+    #     :param int k: size of each kmer
+    #     :param str fasta: path to fasta file (*default: None*)
+    #     :param int upstream: number of bases upstream from interval to read (*default: 0*)
+    #     :param int downstream: number of bases downstream from interval to read (*default: 0*)
+    #     :param int offset: shift offset between kmers in interval (*default: 1*)
+    #     :return: list of kmer tokens in interval
+    #     :rtype: list
+    #     """
+    #     if isinstance(interval, integer_types):
+    #         interval = self.__getitem__(int(interval))
+    #     elif not isinstance(interval, Interval):
+    #         raise ValueError("Argument {} must be an index or Interval object.".format(type(interval)))
 
-        sequence = self.read_seq(interval, fasta=fasta, upstream=upstream, downstream=downstream)
-        tokens = []
-        for i in range(0, len(sequence) - k + 1, offset):
-            position = (interval.chrom, interval.start - upstream + i)
-            kmer = Kmer(sequence[i:i + k], pos=position, alphabet=self.alphabet, complement=self.complement)
-            tokens.append(kmer.token())
-        return tokens
+    #     sequence = self.read_seq(interval, fasta=fasta, upstream=upstream, downstream=downstream)
+    #     tokens = []
+    #     for i in range(0, len(sequence) - k + 1, offset):
+    #         position = (interval.chrom, interval.start - upstream + i)
+    #         kmer = Kmer(sequence[i:i + k], pos=position, alphabet=self.alphabet, complement=self.complement)
+    #         tokens.append(kmer.token())
+    #     return tokens
 
 
-    def get_corpus(self, k, fasta=None, upstream=0, downstream=0, offset=1, delim=' '):
-        """
-        Get corpus object of kmer tokens
+    # def get_corpus(self, k, fasta=None, upstream=0, downstream=0, offset=1, delim=' '):
+    #     """
+    #     Get corpus object of kmer tokens
         
-        :param int k: size of each kmer
-        :param str fasta: path to fasta file (*default: None*)
-        :param int upstream: number of bases upstream from each interval to read (*default: 0*)
-        :param int downstream: number of bases downstream from each interval to read (*default: 0*)
-        :param int offset: shift offset between kmers in each interval (*default: 1*)
-        :param str delim: delimiter for token 'words'
-        :return: corpus of kmer tokens
-        :rtype: BedTool.CorpusGen
-        """
-        return BedTool.CorpusGen(self, k, fasta=fasta, upstream=upstream, downstream=downstream, offset=offset, delim=delim,
-                                          alphabet=self.alphabet, complement=self.complement)
+    #     :param int k: size of each kmer
+    #     :param str fasta: path to fasta file (*default: None*)
+    #     :param int upstream: number of bases upstream from each interval to read (*default: 0*)
+    #     :param int downstream: number of bases downstream from each interval to read (*default: 0*)
+    #     :param int offset: shift offset between kmers in each interval (*default: 1*)
+    #     :param str delim: delimiter for token 'words'
+    #     :return: corpus of kmer tokens
+    #     :rtype: BedTool.CorpusGen
+    #     """
+    #     return BedTool.CorpusGen(self, k, fasta=fasta, upstream=upstream, downstream=downstream, offset=offset, delim=delim,
+    #                                       alphabet=self.alphabet, complement=self.complement)
 
 
-    def get_target(self, expr, **kwargs):
-        """
-        Get expression level target object
+    # def get_target(self, expr, **kwargs):
+    #     """
+    #     Get expression level target object
 
-        :param str expr: path to normalized feature count table
-        :return: BedTool.TargetGet object to process expression levels
-        :rtype: BedTool.TargetGet
-        """
-        return BedTool.TargetGen(self, expr, **kwargs)
+    #     :param str expr: path to normalized feature count table
+    #     :return: BedTool.TargetGet object to process expression levels
+    #     :rtype: BedTool.TargetGet
+    #     """
+    #     return BedTool.TargetGen(self, expr, **kwargs)
