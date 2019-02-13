@@ -337,12 +337,12 @@ class BedTool(bt):
     #                                       alphabet=self.alphabet, complement=self.complement)
 
 
-    # def get_target(self, expr, **kwargs):
-    #     """
-    #     Get expression level target object
+    def get_target(self, expr, **kwargs):
+        """
+        Get expression level target object
 
-    #     :param str expr: path to normalized feature count table
-    #     :return: BedTool.TargetGet object to process expression levels
-    #     :rtype: BedTool.TargetGet
-    #     """
-    #     return BedTool.TargetGen(self, expr, **kwargs)
+        :param str expr: path to normalized feature count table
+        :return: BedTool.TargetGet object to process expression levels
+        :rtype: BedTool.TargetGet
+        """
+        return BedTool.TargetGen(self, expr, **kwargs)
