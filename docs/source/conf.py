@@ -19,14 +19,14 @@ sys.path.insert(0, os.path.abspath('../../..'))
 
 # -- Project information -----------------------------------------------------
 
-project = 'genoml'
+project = 'genlp'
 copyright = '2019, Ross Altman'
 author = 'Ross Altman'
 
 # The short X.Y version
-version = ''
+version = '0.0'
 # The full version, including alpha/beta/rc tags
-release = '0.0'
+release = '0.0.1'
 
 
 # -- General configuration ---------------------------------------------------
@@ -40,8 +40,6 @@ release = '0.0'
 # ones.
 extensions = [
     'sphinx.ext.autodoc',
-    'sphinx.ext.mathjax',
-    'sphinx.ext.napoleon'
 ]
 
 # Add any paths that contain templates here, relative to this directory.
@@ -104,7 +102,7 @@ html_static_path = ['_static']
 # -- Options for HTMLHelp output ---------------------------------------------
 
 # Output file base name for HTML help builder.
-htmlhelp_basename = 'genomldoc'
+htmlhelp_basename = 'genlpdoc'
 
 
 # -- Options for LaTeX output ------------------------------------------------
@@ -131,7 +129,7 @@ latex_elements = {
 # (source start file, target name, title,
 #  author, documentclass [howto, manual, or own class]).
 latex_documents = [
-    (master_doc, 'genoml.tex', 'genoml Documentation',
+    (master_doc, 'genlp.tex', 'genlp Documentation',
      'Ross Altman', 'manual'),
 ]
 
@@ -141,7 +139,7 @@ latex_documents = [
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
 man_pages = [
-    (master_doc, 'genoml', 'genoml Documentation',
+    (master_doc, 'genlp', 'genlp Documentation',
      [author], 1)
 ]
 
@@ -152,8 +150,8 @@ man_pages = [
 # (source start file, target name, title, author,
 #  dir menu entry, description, category)
 texinfo_documents = [
-    (master_doc, 'genoml', 'genoml Documentation',
-     author, 'genoml', 'One line description of project.',
+    (master_doc, 'genlp', 'genlp Documentation',
+     author, 'genlp', 'One line description of project.',
      'Miscellaneous'),
 ]
 

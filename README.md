@@ -1,21 +1,21 @@
-# genoml
+# genlp
 ## Installation
 Clone repository
 ```
 cd work
-git clone https://github.com/knowbodynos/genoml.git
-pip install -e ./genoml
+git clone https://github.com/knowbodynos/genlp.git
+pip install -e ./genlp
 ```
 ## Documentation
-See [documentation](http://htmlpreview.github.io/?https://github.com/knowbodynos/genoml/blob/master/docs/build/html/modules.html).
+See [documentation](http://htmlpreview.github.io/?https://github.com/knowbodynos/genlp/blob/master/docs/build/html/modules.html).
 ## Usage
 ### Example
 ```
 # Import dependencies
 import os
 from sklearn.feature_extraction.text import TfidfVectorizer
-import genoml.helpers.s3 as s3
-from genoml.nlp.bedtools import BedTool, helpers as bth
+import genlp.helpers.s3 as s3
+from genlp.nlp.bedtools import BedTool, helpers as bth
 
 # Cleanup temporary files from previous sessions
 bth.cleanup()

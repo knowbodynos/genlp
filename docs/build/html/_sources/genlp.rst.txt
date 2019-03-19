@@ -1,21 +1,21 @@
-genoml package
-==============
+genlp package
+=============
 
 Subpackages
 -----------
 
 .. toctree::
 
-    genoml.helpers
-    genoml.nlp
+    genlp.helpers
+    genlp.nlp
 
 Submodules
 ----------
 
-genoml.setup module
--------------------
+genlp.setup module
+------------------
 
-.. automodule:: genoml.setup
+.. automodule:: genlp.setup
     :members:
     :undoc-members:
     :show-inheritance:
@@ -24,7 +24,7 @@ genoml.setup module
 Module contents
 ---------------
 
-.. automodule:: genoml
+.. automodule:: genlp
     :members:
     :undoc-members:
     :show-inheritance:

@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>genoml.helpers package &mdash; genoml 0.0.1 documentation</title>
+  <title>genlp package &mdash; genlp 0.0.1 documentation</title>
   
 
   
@@ -46,7 +46,7 @@
           
 
           
-            <a href="index.html" class="icon icon-home"> genoml
+            <a href="index.html" class="icon icon-home"> genlp
           
 
           
@@ -82,10 +82,11 @@
             
               <!-- Local TOC -->
               <div class="local-toc"><ul>
-<li><a class="reference internal" href="#">genoml.helpers package</a><ul>
+<li><a class="reference internal" href="#">genlp package</a><ul>
+<li><a class="reference internal" href="#subpackages">Subpackages</a></li>
 <li><a class="reference internal" href="#submodules">Submodules</a></li>
-<li><a class="reference internal" href="#module-genoml.helpers.s3">genoml.helpers.s3 module</a></li>
-<li><a class="reference internal" href="#module-genoml.helpers">Module contents</a></li>
+<li><a class="reference internal" href="#module-genlp.setup">genlp.setup module</a></li>
+<li><a class="reference internal" href="#module-genlp">Module contents</a></li>
 </ul>
 </li>
 </ul>
@@ -102,7 +103,7 @@
       <nav class="wy-nav-top" aria-label="top navigation">
         
           <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
-          <a href="index.html">genoml</a>
+          <a href="index.html">genlp</a>
         
       </nav>
 
@@ -133,13 +134,13 @@
     
       <li><a href="index.html">Docs</a> &raquo;</li>
         
-      <li>genoml.helpers package</li>
+      <li>genlp package</li>
     
     
       <li class="wy-breadcrumbs-aside">
         
             
-            <a href="_sources/genoml.helpers.rst.txt" rel="nofollow"> View page source</a>
+            <a href="_sources/genlp.rst.txt" rel="nofollow"> View page source</a>
           
         
       </li>
@@ -152,34 +153,36 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
-  <div class="section" id="genoml-helpers-package">
-<h1>genoml.helpers package<a class="headerlink" href="#genoml-helpers-package" title="Permalink to this headline">¶</a></h1>
+  <div class="section" id="genlp-package">
+<h1>genlp package<a class="headerlink" href="#genlp-package" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="subpackages">
+<h2>Subpackages<a class="headerlink" href="#subpackages" title="Permalink to this headline">¶</a></h2>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="genlp.helpers.html">genlp.helpers package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="genlp.helpers.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="genlp.helpers.html#module-genlp.helpers.s3">genlp.helpers.s3 module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="genlp.helpers.html#module-genlp.helpers">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="genlp.nlp.html">genlp.nlp package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="genlp.nlp.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="genlp.nlp.html#module-genlp.nlp.bedtools">genlp.nlp.bedtools module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="genlp.nlp.html#module-genlp.nlp.kmers">genlp.nlp.kmers module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="genlp.nlp.html#module-genlp.nlp">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
 <div class="section" id="submodules">
 <h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">¶</a></h2>
 </div>
-<div class="section" id="module-genoml.helpers.s3">
-<span id="genoml-helpers-s3-module"></span><h2>genoml.helpers.s3 module<a class="headerlink" href="#module-genoml.helpers.s3" title="Permalink to this headline">¶</a></h2>
-<dl class="function">
-<dt id="genoml.helpers.s3.pull">
-<code class="descclassname">genoml.helpers.s3.</code><code class="descname">pull</code><span class="sig-paren">(</span><em>bucket_name</em>, <em>s3_keys</em><span class="sig-paren">)</span><a class="headerlink" href="#genoml.helpers.s3.pull" title="Permalink to this definition">¶</a></dt>
-<dd><p>Download files from s3 bucket</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>bucket_name</strong> (<em>str</em>) – name of s3 bucket</li>
-<li><strong>s3_keys</strong> (<em>dict</em>) – dictionary with s3 keys and the corresponding local paths to download them to</li>
-</ul>
-</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
+<div class="section" id="module-genlp.setup">
+<span id="genlp-setup-module"></span><h2>genlp.setup module<a class="headerlink" href="#module-genlp.setup" title="Permalink to this headline">¶</a></h2>
 </div>
-<div class="section" id="module-genoml.helpers">
-<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-genoml.helpers" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="module-genlp">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-genlp" title="Permalink to this headline">¶</a></h2>
 </div>
 </div>
 

@@ -1,2 +1,2 @@
-__name__ = "genoml"
+__name__ = "genlp"
 __all__ = ['helpers', 'nlp']

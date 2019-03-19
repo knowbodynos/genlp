@@ -5,7 +5,7 @@ cmdclass = {'build_sphinx': BuildDoc}
 with open("README.md", "r") as handle:
     long_description = handle.read()
 
-name = "genoml"
+name = "genlp"
 version = "0.0"
 release = "0.0.1"
 
@@ -17,7 +17,7 @@ setup(
     description="Machine learning tools for genomics",
     long_description=long_description,
     long_description_content_type="text/markdown",
-    url="https://github.com/knowbodynos/genoml",
+    url="https://github.com/knowbodynos/genlp",
     packages=find_packages(),
     cmdclass=cmdclass,
     # these are optional and override conf.py settings

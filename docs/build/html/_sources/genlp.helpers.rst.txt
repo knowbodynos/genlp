@@ -1,13 +1,13 @@
-genoml.helpers package
-======================
+genlp.helpers package
+=====================
 
 Submodules
 ----------
 
-genoml.helpers.s3 module
-------------------------
+genlp.helpers.s3 module
+-----------------------
 
-.. automodule:: genoml.helpers.s3
+.. automodule:: genlp.helpers.s3
     :members:
     :undoc-members:
     :show-inheritance:
@@ -16,7 +16,7 @@ genoml.helpers.s3 module
 Module contents
 ---------------
 
-.. automodule:: genoml.helpers
+.. automodule:: genlp.helpers
     :members:
     :undoc-members:
     :show-inheritance:

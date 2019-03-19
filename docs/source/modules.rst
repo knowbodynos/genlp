@@ -1,7 +1,7 @@
-genoml
-======
+genlp
+=====
 
 .. toctree::
    :maxdepth: 4
 
-   genoml
+   genlp
